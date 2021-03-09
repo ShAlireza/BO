@@ -39,7 +39,7 @@ class CronHandler:
 
     def edit_jobs(self, jobs_command):
         jobs = self.get_jobs_by_command(
-            command=jobs_command
+            job_command=jobs_command
         )
 
         for job in jobs:
@@ -50,13 +50,29 @@ class CronHandler:
     def _edit_job(self, job):
         pass
 
+    def disable_job(self, job_id):
+        job = self.get_job_by_id(
+            job_id=job_id
+        )
+        self._disable_job(job)
+
+    def disable_jobs(self, job_command):
+        jobs = self.get_jobs_by_command(
+            job_command=job_command
+        )
+        for job in jobs:
+            self._disable_job(job)
+
+    def _disable_job(self, job):
+        pass
+
     def get_job_by_id(self, job_id):
         command = list(self.cron.find_comment(
             comment=job_id
         ))
         if len(command) > 1:
             raise MultipleJobsWithGivenId("multiple jobs found")
-        return command
+        return command[0] if command else None
 
     def get_jobs_by_command(self, job_command):
         return list(self.cron.find_command(

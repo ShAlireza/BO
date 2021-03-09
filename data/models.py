@@ -10,4 +10,4 @@ class CronJob(Base):
     id = Column(Integer, primary_key=True, index=True)
     job_id = Column(String, unique=True, index=True)
 
-    enabled = Column(Boolean, default=True)
+    enable = Column(Boolean, default=True)
