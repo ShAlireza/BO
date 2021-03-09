@@ -2,6 +2,13 @@ from typing import List, Optional
 
 from fastapi import APIRouter
 
+from data import crud, models, schemas
+from data.db import SessionLocal, engine
+
+models.Base.metadata.create_all(
+    bind=engine
+)
+
 router = APIRouter(
     prefix="/api/cron"
 )
