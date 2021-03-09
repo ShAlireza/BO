@@ -58,9 +58,9 @@ class CronHandler:
             raise MultipleJobsWithGivenId("multiple jobs found")
         return command
 
-    def get_jobs_by_command(self, command):
+    def get_jobs_by_command(self, job_command):
         return list(self.cron.find_command(
-            command=command
+            command=job_command
         ))
 
     def get_jobs_by_time(self, *time):
@@ -76,3 +76,7 @@ class CronHandler:
 
     def get_jobs_with_unique_id(self):
         return self.cron.comments
+
+    def print_cron_jobs(self):
+        for job in self.cron:
+            print(job)
