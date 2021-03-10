@@ -1,15 +1,14 @@
 from crontab import CronTab
 from exceptions import MultipleJobsWithGivenId
 
-my_cron = CronTab(user='alireza')
-
 
 class CronHandler:
 
     def __init__(self, user='alireza'):
         self.cron = CronTab(user=user)
 
-    def add_job(self, job_id):
+    def add_job(self, job):
+
         pass
 
     def delete_job(self, job_id=None, job_command=None, job_time=None):
