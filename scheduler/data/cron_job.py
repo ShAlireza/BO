@@ -24,7 +24,7 @@ class CronJob(BaseModel):
         title='Service host'
     )
 
-    port: str = Field(
+    port: Optional[str] = Field(
         None,
         title='Service host port'
     )
