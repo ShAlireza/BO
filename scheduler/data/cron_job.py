@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, validator, ValidationError
 
 __all__ = ('CronJob',)
 
+CRON_TIME_REGEX = r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+
 
 class CronJob(BaseModel):
     id: int = Field(
@@ -36,31 +38,31 @@ class CronJob(BaseModel):
     minute: str = Field(
         ...,
         title='Cron job minute field',
-        regex=r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+        regex=CRON_TIME_REGEX
     )
 
     hour: str = Field(
         '*',
         title='Cron job hour field',
-        regex=r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+        regex=CRON_TIME_REGEX
     )
 
     day_of_month: str = Field(
         '*',
         title='Cron job day of the month field',
-        regex=r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+        regex=CRON_TIME_REGEX
     )
 
     month: str = Field(
         '*',
         title='Cron job month field',
-        regex=r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+        regex=CRON_TIME_REGEX
     )
 
     day_of_week: str = Field(
         '*',
         title='Cron job day of the week field',
-        regex=r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+        regex=CRON_TIME_REGEX
     )
 
     full_command: str = Field(
