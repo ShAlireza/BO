@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from ..internal.cron_job import CronHandler
-from ..dependencies import get_cron_handler
+from internal.cron_job import CronHandler
+from dependencies import get_cron_handler
 
 router = APIRouter(
     prefix="/api/cron"

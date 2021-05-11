@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from scheduler.routers import cron_job_router
+from routers import cron_job_router
 
 app = FastAPI()
 

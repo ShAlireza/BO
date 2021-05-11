@@ -1,7 +1,7 @@
 from crontab import CronTab
-from scheduler.exceptions import MultipleJobsWithGivenId
+from exceptions import MultipleJobsWithGivenId
 
-from ..config import SCHEDULER_USER
+from config import SCHEDULER_USER
 
 
 class CronHandler:
