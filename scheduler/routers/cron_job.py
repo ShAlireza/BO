@@ -1,9 +1,4 @@
-from typing import List, Optional
-
 from fastapi import APIRouter
-
-from data import crud, models, schemas
-from data.db import SessionLocal, engine
 
 router = APIRouter(
     prefix="/api/cron"

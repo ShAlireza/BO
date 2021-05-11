@@ -1,8 +1,6 @@
-from typing import List, Optional
-
 from fastapi import FastAPI
 
-from routers import cron_job_router
+from scheduler.routers import cron_job_router
 
 app = FastAPI()
 
