@@ -1,5 +1,7 @@
 from crontab import CronTab
-from exceptions import MultipleJobsWithGivenId
+from scheduler.exceptions import MultipleJobsWithGivenId
+
+from ..config import SCHEDULER_USER
 
 
 class CronHandler:
@@ -95,3 +97,8 @@ class CronHandler:
     def print_cron_jobs(self):
         for job in self.cron:
             print(job)
+
+
+cron_handler = CronHandler(
+    user=SCHEDULER_USER
+)
