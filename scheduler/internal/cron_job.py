@@ -1,4 +1,5 @@
-from crontab import CronTab
+from crontab import CronTab, CronItem
+from data import CronJob
 from exceptions import MultipleJobsWithGivenId
 
 from config import SCHEDULER_USER
@@ -9,9 +10,20 @@ class CronHandler:
     def __init__(self, user='alireza'):
         self.cron = CronTab(user=user)
 
-    def add_job(self, job):
+    def add_job(self, cron_job: CronJob):
+        job = self.cron.new(
+            command=cron_job.full_command,
+            comment=cron_job.id
+        )
+        job.setall(
+            cron_job.minute,
+            cron_job.hour,
+            cron_job.day_of_month,
+            cron_job.month,
+            cron_job.day_of_week
+        )
 
-        pass
+        self.cron.write()
 
     def delete_job(self, job_id=None, job_command=None, job_time=None):
         if job_id:
@@ -64,16 +76,16 @@ class CronHandler:
         for job in jobs:
             self._disable_job(job)
 
-    def _disable_job(self, job):
-        pass
+    def _disable_job(self, job: CronItem):
+        return job.enable(False)
 
-    def get_job_by_id(self, job_id):
-        command = list(self.cron.find_comment(
+    def get_job_by_id(self, job_id) -> CronItem:
+        jobs = list(self.cron.find_comment(
             comment=job_id
         ))
-        if len(command) > 1:
+        if len(jobs) > 1:
             raise MultipleJobsWithGivenId("multiple jobs found")
-        return command[0] if command else None
+        return jobs[0] if jobs else None
 
     def get_jobs_by_command(self, job_command):
         return list(self.cron.find_command(
@@ -94,7 +106,7 @@ class CronHandler:
     def get_jobs_with_unique_id(self):
         return self.cron.comments
 
-    def print_cron_jobs(self):
+    def print_crxon_jobs(self):
         for job in self.cron:
             print(job)
 
