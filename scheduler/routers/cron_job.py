@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body, Path
 
-from internal.cron_job import CronHandler
+from internal import CronHandler
 from dependencies import get_cron_handler
+from data import CronJob
 
 router = APIRouter(
     prefix="/api/cron"
@@ -10,28 +11,39 @@ router = APIRouter(
 __all__ = ('router',)
 
 
-@router.post("/")
+@router.post("/", response_model=CronJob)
 async def add_job(
-        cron_handler: CronHandler = Depends(get_cron_handler)
+        cron_handler: CronHandler = Depends(get_cron_handler),
+        job: CronJob = Body(..., title='Job to be added to scheduling service')
 ):
-    pass
+    return job
 
 
-@router.get("/")
+@router.get("/{job_id}", response_model=CronJob)
 async def get_job(
-        cron_handler: CronHandler = Depends(get_cron_handler)
+        cron_handler: CronHandler = Depends(get_cron_handler),
+        job_id: str = Path(..., title='Job id to retrieve')
 ):
-    pass
+    # job = cron_handler.get_job_by_id(
+    #     job_id=job_id
+    # )
+    # cron_job = CronJob(
+    #     id=job_id,
+    #     enable=job.is_enabled(),
+    #
+    # )
+
+    return None
 
 
-@router.put("/")
+@router.put("/{job_id}", response_model=CronJob)
 async def edit_job(
         cron_handler: CronHandler = Depends(get_cron_handler)
 ):
     pass
 
 
-@router.delete("/")
+@router.delete("/{job_id}", response_model=CronJob)
 async def delete_job(
         cron_handler: CronHandler = Depends(get_cron_handler)
 ):
