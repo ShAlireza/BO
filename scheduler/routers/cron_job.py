@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Body, Path, status
 
 from internal import CronHandler
-from data import CronJob, CronJobRequest, CronJobResponse
+from data import CronJob, CronJobPost, CronJobResponse, CronJobPatch
 
 from config import SCHEDULER_USER
 
@@ -24,7 +24,7 @@ async def get_cron_handler():
 @router.post("/", response_model=CronJobResponse)
 async def add_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
-        job: CronJobRequest = Body(
+        job: CronJobPost = Body(
             ...,
             title='Job to be added to scheduling service'
         )
@@ -60,11 +60,26 @@ async def get_job(
     return job
 
 
-@router.put("/{job_id}", response_model=CronJobResponse)
+@router.patch("/{job_id}", response_model=CronJobResponse)
 async def edit_job(
-        cron_handler: CronHandler = Depends(get_cron_handler)
+        cron_handler: CronHandler = Depends(get_cron_handler),
+        job_id: UUID = Path(..., title='Job id to edit'),
+        job: CronJobPatch = Body(..., title='Fields to update')
 ):
-    pass
+    prev = cron_handler.get_job_by_id(
+        job_id=str(job_id)
+    )
+    cron_handler.delete_job(
+        job_id=str(job_id)
+    )
+    update_data = job.dict(exclude_unset=True)
+    new_job = prev.copy(update=update_data)
+
+    cron_handler.add_job(
+        cron_job=new_job
+    )
+
+    return new_job
 
 
 @router.delete("/{job_id}", response_model=CronJobResponse,
