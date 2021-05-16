@@ -2,8 +2,6 @@ from crontab import CronTab, CronItem
 from data import CronJob
 from exceptions import MultipleJobsWithGivenId
 
-from config import SCHEDULER_USER
-
 
 class CronHandler:
 
@@ -109,8 +107,3 @@ class CronHandler:
     def print_crxon_jobs(self):
         for job in self.cron:
             print(job)
-
-
-cron_handler = CronHandler(
-    user=SCHEDULER_USER
-)

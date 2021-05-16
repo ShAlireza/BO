@@ -1,14 +1,21 @@
 from fastapi import APIRouter, Depends, Body, Path
 
 from internal import CronHandler
-from dependencies import get_cron_handler
 from data import CronJob
+
+from config import SCHEDULER_USER
 
 router = APIRouter(
     prefix="/api/cron"
 )
 
 __all__ = ('router',)
+
+
+async def get_cron_handler():
+    return CronHandler(
+        user=SCHEDULER_USER
+    )
 
 
 @router.post("/", response_model=CronJob)
