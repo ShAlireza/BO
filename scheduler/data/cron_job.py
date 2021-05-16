@@ -35,7 +35,7 @@ class CronJobBase(BaseModel):
     )
 
     minute: str = Field(
-        ...,
+        "*",
         title='Cron job minute field',
         regex=CRON_TIME_REGEX
     )
@@ -107,19 +107,13 @@ class CronJobPatch(CronJobBase):
         title='Service host'
     )
 
-    minute: Optional[int] = Field(
-        None,
-        title='Cron job minute field',
-        regex=CRON_TIME_REGEX
-    )
-
 
 class CronJobResponse(CronJobBase):
     id: UUID = Field(
         ...,
         title='Cron job unique id'
     )
-    
+
     created: str = Field(
         ...,
         title='Job create time'
