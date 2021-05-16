@@ -152,7 +152,6 @@ class CronHandler:
             return_cron_items=False
     ) -> Union[List[CronJob], Tuple[List[CronJob], List[CronItem]]]:
         cron_items = self.cron.crons
-        print(cron_items)
         cron_jobs = list(map(self.cron_job_from_cron_item, cron_items))
 
         if return_cron_items:
