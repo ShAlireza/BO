@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import List, Union, Tuple
 
 from crontab import CronTab, CronItem
@@ -11,10 +12,14 @@ class CronHandler:
     def __init__(self, user='alireza'):
         self.cron = CronTab(user=user)
 
-    def add_job(self, cron_job: CronJob) -> CronJob:
+    def add_job(
+            self,
+            cron_job: CronJob
+    ) -> CronJob:
         job = self.cron.new(
             command=cron_job.full_command,
-            comment=cron_job.id
+            comment=cron_job.id,
+            pre_comment=str(datetime.now())
         )
         job.setall(
             cron_job.minute,
@@ -28,7 +33,14 @@ class CronHandler:
 
         return cron_job
 
-    def delete_job(self, job_id=None, job_command=None, job_time=None):
+    def delete_job(
+            self,
+            job_id=None,
+            job_command=None,
+            job_time=None
+    ) -> int:
+        result = 0
+
         if job_id:
             result = self.cron.remove_all(
                 comment=job_id
@@ -45,39 +57,10 @@ class CronHandler:
 
         return result
 
-    def delete_all_jobs(self):
+    def delete_all_jobs(
+            self
+    ) -> None:
         return self.cron.remove_all()
-
-    def edit_job(
-            self,
-            cron_job: CronJob
-    ):
-        _, cron_item = self.get_job_by_id(
-            job_id=cron_job.id,
-            return_cron_item=True
-        )
-        self._edit_job(
-            job=cron_item
-        )
-
-    def edit_jobs(
-            self,
-            jobs_command
-    ):
-        jobs = self.get_jobs_by_command(
-            job_command=jobs_command
-        )
-
-        for job in jobs:
-            self._edit_job(
-                job=job
-            )
-
-    def _edit_job(
-            self,
-            job
-    ):
-        pass
 
     def disable_job(
             self,
@@ -88,6 +71,7 @@ class CronHandler:
             job_id=cron_job.id,
             return_cron_item=True
         )
+
         return self._disable_job(cron_item)
 
     def disable_jobs(
@@ -216,6 +200,7 @@ class CronHandler:
         command_split = re.split("\\s+", cron_item.command)
 
         args = parser.parse_args(command_split[1:])
+
         return CronJob(
             id=cron_item.comment,
             enable=cron_item.is_enabled(),
@@ -228,4 +213,5 @@ class CronHandler:
             month=cron_item.month.render(),
             day_of_week=cron_item.dow.render(),
             full_command=cron_item.command,
+            created=cron_item.pre_comment
         )
