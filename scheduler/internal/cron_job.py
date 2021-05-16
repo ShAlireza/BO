@@ -3,9 +3,7 @@ from typing import List, Union, Tuple
 
 from crontab import CronTab, CronItem
 from data import CronJob
-from exceptions import MultipleJobsWithGivenId
-
-from .event_push import parser as event_push_parser
+from exceptions import MultipleJobsWithGivenId, NoJobFoundWithGivenId
 
 
 class CronHandler:
@@ -32,17 +30,20 @@ class CronHandler:
 
     def delete_job(self, job_id=None, job_command=None, job_time=None):
         if job_id:
-            return self.cron.remove_all(
+            result = self.cron.remove_all(
                 comment=job_id
             )
         elif job_command:
-            return self.cron.remove_all(
+            result = self.cron.remove_all(
                 command=job_command
             )
         elif job_time:
-            return self.cron.remove_all(
+            result = self.cron.remove_all(
                 time=job_time
             )
+        self.cron.write()
+
+        return result
 
     def delete_all_jobs(self):
         return self.cron.remove_all()
@@ -123,6 +124,8 @@ class CronHandler:
 
         if len(cron_items) > 1:
             raise MultipleJobsWithGivenId("multiple jobs found")
+        elif len(cron_items) <= 0:
+            raise NoJobFoundWithGivenId("job not found")
 
         cron_item = cron_items[0]
         cron_job = self.cron_job_from_cron_item(cron_item)
@@ -166,7 +169,7 @@ class CronHandler:
             return_cron_items=False
     ) -> Union[List[CronJob], Tuple[List[CronJob], List[CronItem]]]:
         cron_items = self.cron.crons
-
+        print(cron_items)
         cron_jobs = list(map(self.cron_job_from_cron_item, cron_items))
 
         if return_cron_items:
@@ -209,19 +212,20 @@ class CronHandler:
             cron_item: CronItem
     ) -> CronJob:
 
+        from .event_push import parser
         command_split = re.split("\\s+", cron_item.command)
-        args = event_push_parser.parse_args(command_split[1:])
 
+        args = parser.parse_args(command_split[1:])
         return CronJob(
             id=cron_item.comment,
             enable=cron_item.is_enabled(),
-            minute=cron_item.minute,
             technology=args.tech,
             host=args.host,
             port=args.port,
-            hour=cron_item.hour,
-            day_of_month=cron_item.dom,
-            month=cron_item.month,
-            day_of_week=cron_item.dow,
+            minute=cron_item.minute.render(),
+            hour=cron_item.hour.render(),
+            day_of_month=cron_item.dom.render(),
+            month=cron_item.month.render(),
+            day_of_week=cron_item.dow.render(),
             full_command=cron_item.command,
         )

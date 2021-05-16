@@ -33,12 +33,17 @@ parser.add_argument(
     required=True
 )
 
-args = parser.parse_args()
+if __name__ == '__main__':
+    args = parser.parse_args()
 
-push_data = {
-    'tech': args.tech,
-    'host': args.host,
-    'port': args.port
-}
+    push_data = {
+        'tech': args.tech,
+        'host': args.host,
+        'port': args.port
+    }
 
-print(push_data)
+    print(push_data)
+
+
+def get_parser():
+    return parser

@@ -1,19 +1,17 @@
 import uuid
 from typing import List, Optional, Union, Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field, validator, ValidationError
 
-__all__ = ('CronJob',)
+from config import PYTHONPATH
+
+__all__ = ('CronJob', 'CronJobRequest', 'CronJobResponse')
 
 CRON_TIME_REGEX = r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
 
 
-class CronJob(BaseModel):
-    id: int = Field(
-        ...,
-        title="Cron job unique id",
-        default_factory=lambda: str(uuid.uuid4())
-    )
+class CronJobBase(BaseModel):
     enable: Optional[bool] = Field(
         True,
         title="Enable job"
@@ -30,7 +28,7 @@ class CronJob(BaseModel):
         title='Service host'
     )
 
-    port: Optional[str] = Field(
+    port: Optional[int] = Field(
         None,
         title='Service host port'
     )
@@ -65,7 +63,33 @@ class CronJob(BaseModel):
         regex=CRON_TIME_REGEX
     )
 
+
+class CronJob(CronJobBase):
+    id: UUID = Field(
+        ...,
+        title="Cron job unique id",
+        default_factory=lambda: str(uuid.uuid4())
+    )
+
     full_command: str = Field(
         None,
         title='Cron job command to execute'
+    )
+
+    def generate_full_command(self):
+        self.full_command = (f'{PYTHONPATH}/internal/event_push.py '
+                             f'--tech {self.technology} '
+                             f'--host {self.host} '
+                             f'--port {self.port}')
+        return self.full_command
+
+
+class CronJobRequest(CronJobBase):
+    pass
+
+
+class CronJobResponse(CronJobBase):
+    id: UUID = Field(
+        ...,
+        title='Cron job unique id'
     )
