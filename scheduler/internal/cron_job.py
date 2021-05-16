@@ -19,7 +19,6 @@ class CronHandler:
         job = self.cron.new(
             command=cron_job.full_command,
             comment=cron_job.id,
-            pre_comment=str(datetime.now())
         )
         job.setall(
             cron_job.minute,
@@ -213,5 +212,5 @@ class CronHandler:
             month=cron_item.month.render(),
             day_of_week=cron_item.dow.render(),
             full_command=cron_item.command,
-            created=cron_item.pre_comment
+            created='date'
         )
