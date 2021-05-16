@@ -66,7 +66,7 @@ class CronJobBase(BaseModel):
 
 
 class CronJob(CronJobBase):
-    id: UUID = Field(
+    id: str = Field(
         ...,
         title="Cron job unique id",
         default_factory=lambda: str(uuid.uuid4())
@@ -109,7 +109,7 @@ class CronJobPatch(CronJobBase):
 
 
 class CronJobResponse(CronJobBase):
-    id: UUID = Field(
+    id: str = Field(
         ...,
         title='Cron job unique id'
     )

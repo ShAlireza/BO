@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, Body, Path, status
 
@@ -51,10 +50,10 @@ async def get_jobs(
 @router.get("/{job_id}", response_model=CronJobResponse)
 async def get_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
-        job_id: UUID = Path(..., title='Job id to retrieve')
+        job_id: str = Path(..., title='Job id to retrieve')
 ):
     job = cron_handler.get_job_by_id(
-        job_id=str(job_id)
+        job_id=job_id
     )
 
     return job
@@ -63,17 +62,20 @@ async def get_job(
 @router.patch("/{job_id}", response_model=CronJobResponse)
 async def edit_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
-        job_id: UUID = Path(..., title='Job id to edit'),
+        job_id: str = Path(..., title='Job id to edit'),
         job: CronJobPatch = Body(..., title='Fields to update')
 ):
     prev = cron_handler.get_job_by_id(
-        job_id=str(job_id)
+        job_id=job_id
     )
     cron_handler.delete_job(
-        job_id=str(job_id)
+        job_id=job_id
     )
+
     update_data = job.dict(exclude_unset=True)
+
     new_job = prev.copy(update=update_data)
+    new_job.generate_full_command()
 
     cron_handler.add_job(
         cron_job=new_job
@@ -86,10 +88,10 @@ async def edit_job(
                status_code=status.HTTP_200_OK)
 async def delete_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
-        job_id: UUID = Path(..., title='Job id to delete')
+        job_id: str = Path(..., title='Job id to delete')
 ):
-    job = cron_handler.get_job_by_id(str(job_id))
+    job = cron_handler.get_job_by_id(job_id)
 
-    cron_handler.delete_job(job_id=str(job_id))
+    cron_handler.delete_job(job_id=job_id)
 
     return job
