@@ -1,23 +1,44 @@
 import argparse
 
-import os
-import sys
-
 parser = argparse.ArgumentParser(
+    prog='scheduler event pusher',
     description='push an event to queue',
     allow_abbrev=False
 )
 
 parser.add_argument(
-    '-i',
-    '--id',
-    metavar='id',
+    '-t',
+    '--tech',
+    metavar='tech',
     type=str,
-    help='the cron job id',
-    required=True,
-    nargs=1
+    help='service technology [e.g. mysql, postgres, ...]',
+    required=True
+)
+
+parser.add_argument(
+    '-H',
+    '--host',
+    metavar='host',
+    type=str,
+    help='service host',
+    required=True
+)
+
+parser.add_argument(
+    '-p',
+    '--port',
+    metavar='port',
+    type=int,
+    help='service port',
+    required=True
 )
 
 args = parser.parse_args()
 
-cron_job_id = args.id[0]
+push_data = {
+    'tech': args.tech,
+    'host': args.host,
+    'port': args.port
+}
+
+print(push_data)
