@@ -67,13 +67,11 @@ class CronJobBase(BaseModel):
 
 class CronJob(CronJobBase):
     id: str = Field(
-        ...,
         title="Cron job unique id",
         default_factory=lambda: str(uuid.uuid4())
     )
 
     created: str = Field(
-        ...,
         title='Job create time',
         default_factory=lambda: str(datetime.now())
     )
