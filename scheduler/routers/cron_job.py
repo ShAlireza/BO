@@ -32,11 +32,15 @@ async def add_job(
     cron_job = CronJob(**job.dict())
     cron_job.generate_full_command()
 
+    cron_job_model = await CronJobModel.create(**cron_job.dict())
+
+    cron_job.id = cron_job_model.id
+
     cron_handler.add_job(
         cron_job=cron_job
     )
 
-    return cron_job
+    return cron_job_model
 
 
 @router.get("/", response_model=List[CronJobResponse])

@@ -112,11 +112,11 @@ class CronJobResponse(CronJobBase):
         title='Cron job unique id'
     )
 
-    created_at: str = Field(
+    created_at: datetime = Field(
         ...,
         title='Job create time'
     )
-    updated_at: str = Field(
+    updated_at: datetime = Field(
         ...,
         title='Job last update time'
     )

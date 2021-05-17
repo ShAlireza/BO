@@ -1,9 +1,11 @@
+from uuid import uuid4
+
 from tortoise.models import Model
 from tortoise import fields
 
 
 class CronJobModel(Model):
-    id = fields.UUIDField(pk=True)
+    id = fields.CharField(max_length=48, pk=True, default=uuid4)
     enable = fields.BooleanField(default=True)
     technology = fields.CharField(max_length=64)
     host = fields.CharField(max_length=128)
