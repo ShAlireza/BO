@@ -8,3 +8,5 @@ async-generator==1.10
 python-crontab==2.5.1
 aiofiles==0.6.0
 itsdangerous==2.0.0
+tortoise-orm==0.17.2
+aerich==0.5.3
