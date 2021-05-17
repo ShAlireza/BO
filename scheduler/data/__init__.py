@@ -1,1 +1,6 @@
-from .cron_job_pydantic import CronJob, CronJobPost, CronJobResponse, CronJobPatch
+from data.pydantic.cron_job import (
+    CronJob,
+    CronJobPost,
+    CronJobResponse,
+    CronJobPatch
+)
