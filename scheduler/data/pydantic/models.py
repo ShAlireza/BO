@@ -63,17 +63,17 @@ class CronJobBase(BaseModel):
         title='Cron job day of the week field',
         regex=CRON_TIME_REGEX
     )
+    
+    label: Optional[str] = Field(
+        None,
+        title='Custom optional label for job'
+    )
 
 
 class CronJob(CronJobBase):
     id: str = Field(
         title="Cron job unique id",
         default_factory=lambda: str(uuid.uuid4())
-    )
-
-    created: str = Field(
-        title='Job create time',
-        default_factory=lambda: str(datetime.now())
     )
 
     full_command: str = Field(
@@ -112,7 +112,14 @@ class CronJobResponse(CronJobBase):
         title='Cron job unique id'
     )
 
-    created: str = Field(
+    created_at: str = Field(
         ...,
         title='Job create time'
     )
+    updated_at: str = Field(
+        ...,
+        title='Job last update time'
+    )
+
+    class Config:
+        orm_mode = True

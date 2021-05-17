@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Body, Path, status
 
 from internal import CronHandler
 from data import CronJob, CronJobPost, CronJobResponse, CronJobPatch
+from data.db.models import CronJobModel
 
 from config import SCHEDULER_USER
 
@@ -42,7 +43,8 @@ async def add_job(
 async def get_jobs(
         cron_handler: CronHandler = Depends(get_cron_handler)
 ):
-    jobs = cron_handler.get_all_jobs()
+    # jobs = cron_handler.get_all_jobs()
+    jobs = await CronJobModel.all()
 
     return jobs
 
