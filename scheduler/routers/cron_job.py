@@ -68,23 +68,28 @@ async def edit_job(
         job_id: str = Path(..., title='Job id to edit'),
         job: CronJobPatch = Body(..., title='Fields to update')
 ):
-    prev = cron_handler.get_job_by_id(
-        job_id=job_id
+    update_data = job.dict(exclude_unset=True)
+
+    cron_job = await CronJobModel.get(id=job_id)
+
+    new_job = CronJob.instance_from_tortoise_model(cron_job)
+    new_job = new_job.copy(update=update_data)
+    new_job.generate_full_command()
+
+    cron_job = await cron_job.update_from_dict(
+        data=new_job.dict(exclude_unset=True)
     )
+    await cron_job.save()
+
     cron_handler.delete_job(
         job_id=job_id
     )
-
-    update_data = job.dict(exclude_unset=True)
-
-    new_job = prev.copy(update=update_data)
-    new_job.generate_full_command()
 
     cron_handler.add_job(
         cron_job=new_job
     )
 
-    return new_job
+    return cron_job
 
 
 @router.delete("/{job_id}", response_model=CronJobResponse,
@@ -93,7 +98,7 @@ async def delete_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
         job_id: str = Path(..., title='Job id to delete')
 ):
-    job = cron_handler.get_job_by_id(job_id)
+    job = await CronJobModel.get(id=job_id)
     cron_handler.delete_job(job_id=job_id)
 
     await CronJobModel.filter(id=job_id).delete()

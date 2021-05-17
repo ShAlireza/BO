@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, validator, ValidationError
 
+from data.db.models import CronJobModel
+
 from config import PYTHONPATH
 
 __all__ = ('CronJob', 'CronJobPost', 'CronJobResponse', 'CronJobPatch')
@@ -63,11 +65,16 @@ class CronJobBase(BaseModel):
         title='Cron job day of the week field',
         regex=CRON_TIME_REGEX
     )
-    
+
     label: Optional[str] = Field(
         None,
         title='Custom optional label for job'
     )
+
+    @staticmethod
+    def instance_from_tortoise_model(model: CronJobModel):
+        key_values = {k: getattr(model, k) for k in model._meta.fields}
+        return CronJob(**key_values)
 
 
 class CronJob(CronJobBase):
