@@ -47,7 +47,6 @@ async def add_job(
 async def get_jobs(
         cron_handler: CronHandler = Depends(get_cron_handler)
 ):
-    # jobs = cron_handler.get_all_jobs()
     jobs = await CronJobModel.all()
 
     return jobs
@@ -58,9 +57,7 @@ async def get_job(
         cron_handler: CronHandler = Depends(get_cron_handler),
         job_id: str = Path(..., title='Job id to retrieve')
 ):
-    job = cron_handler.get_job_by_id(
-        job_id=job_id
-    )
+    job = await CronJobModel.get(id=job_id)
 
     return job
 
@@ -97,7 +94,8 @@ async def delete_job(
         job_id: str = Path(..., title='Job id to delete')
 ):
     job = cron_handler.get_job_by_id(job_id)
-
     cron_handler.delete_job(job_id=job_id)
+
+    await CronJobModel.filter(id=job_id).delete()
 
     return job

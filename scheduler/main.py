@@ -12,7 +12,7 @@ register_tortoise(
     db_url=DATABASE_URL,
     modules={'scheduler': ["data.db.models"]},
     generate_schemas=False,
-    add_exception_handlers=False
+    add_exception_handlers=True
 )
 
 app.include_router(
