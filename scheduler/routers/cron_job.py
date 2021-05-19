@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Body, Path, status
+from fastapi import APIRouter, Depends, Body, Path, Query, status
 
 from internal import CronHandler
 from data import CronJob, CronJobPost, CronJobResponse, CronJobPatch
@@ -45,9 +45,13 @@ async def add_job(
 
 @router.get("/", response_model=List[CronJobResponse])
 async def get_jobs(
-        cron_handler: CronHandler = Depends(get_cron_handler)
+        cron_handler: CronHandler = Depends(get_cron_handler),
+        label: Optional[str] = Query(None, title='custom label if provided')
 ):
-    jobs = await CronJobModel.all()
+    if not label:
+        jobs = await CronJobModel.all()
+    else:
+        jobs = await CronJobModel.filter(label=label)
 
     return jobs
 
