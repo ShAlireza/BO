@@ -18,7 +18,7 @@ class CronHandler:
     ) -> CronJob:
         job = self.cron.new(
             command=cron_job.full_command,
-            comment=cron_job.id,
+            comment=cron_job.id
         )
         job.setall(
             cron_job.minute,
@@ -27,6 +27,7 @@ class CronHandler:
             cron_job.month,
             cron_job.day_of_week
         )
+        job.enable(enabled=cron_job.enable)
 
         self.cron.write()
 
