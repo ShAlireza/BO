@@ -6,7 +6,8 @@ passlib==1.7.4
 async-exit-stack==1.0.1
 async-generator==1.10
 python-crontab==2.5.1
-aiofiles==0.6.0
-itsdangerous==2.0.0
+aiofiles==0.7.0
+itsdangerous==2.0.1
 tortoise-orm==0.17.2
 aerich==0.5.3
+# git+https://github.com/ShAlireza/BO/tree/master/packages/bo_shared
