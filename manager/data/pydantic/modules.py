@@ -1,15 +1,10 @@
 from pydantic import BaseModel, Field
 
 
-class Module(BaseModel):
+class ModuleBase(BaseModel):
     name: str = Field(
         ...,
         title='Service name(mysql, postgres, git, ...)'
-    )
-
-    secret_key: str = Field(
-        ...,
-        title='Secret key for manager <-> module communication'
     )
 
     host: str = Field(
@@ -23,7 +18,18 @@ class Module(BaseModel):
         ge=0
     )
 
+
+class ModuleResponse(ModuleBase):
+    secret_key: str = Field(
+        ...,
+        title='Secret key for manager <-> module communication'
+    )
+
     status: str = Field(
         'up',
-        title='Module status(up, down)'
+        title='Module status(up, down)',
     )
+
+
+class ModulePost(ModuleBase):
+    pass
