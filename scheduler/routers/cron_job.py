@@ -8,9 +8,7 @@ from data.db.models import CronJobModel
 
 from config import SCHEDULER_USER
 
-router = APIRouter(
-    prefix="/api/cron"
-)
+router = APIRouter()
 
 __all__ = ('router',)
 

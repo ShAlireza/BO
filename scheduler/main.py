@@ -17,5 +17,6 @@ register_tortoise(
 
 app.include_router(
     cron_job_router,
+    prefix='/api/cron',
     tags=['Cron']
 )
