@@ -1,35 +1,49 @@
 from pydantic import BaseModel, Field
 
 
-class ModuleBase(BaseModel):
-    name: str = Field(
-        ...,
-        title='Service name(mysql, postgres, git, ...)'
-    )
-
+class ModuleInstance(BaseModel):
     host: str = Field(
         ...,
-        title='Module host ip or domain'
+        title='Instance host ip or domain',
+        max_length=256
     )
 
     port: int = Field(
         ...,
-        title='Module port',
+        title='Instance port',
         ge=0
+    )
+
+    state: str = Field(
+        'down',
+        title='Instance current state',
+        max_length=64
+    )
+
+
+class ModuleBase(BaseModel):
+    name: str = Field(
+        ...,
+        title='Service name(mysql, postgres, git, ...)',
+        max_length=128
+    )
+
+    secret_key: str = Field(
+        ...,
+        max_length=128,
+        title='Secret key for manager <-> module communication'
     )
 
 
 class ModuleResponse(ModuleBase):
-    secret_key: str = Field(
+
+    id: str = Field(
         ...,
-        title='Secret key for manager <-> module communication'
+        title='Module db id',
+        max_length=48
     )
 
-    status: str = Field(
-        'up',
-        title='Module status(up, down)',
+    instances: ModuleInstance = Field(
+        ...,
+        title='Instances deployed of current module'
     )
-
-
-class ModulePost(ModuleBase):
-    pass
