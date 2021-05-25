@@ -38,6 +38,14 @@ class Module(Model):
         unique=True
     )
 
+    created = fields.DatetimeField(
+        auto_now_add=True
+    )
+
+    updated = fields.DatetimeField(
+        auto_now=True
+    )
+
 
 class ModuleInstance(Model):
     UP = 'up'
@@ -60,6 +68,14 @@ class ModuleInstance(Model):
     state = fields.CharField(
         max_length=64,
         default=DOWN
+    )
+
+    created = fields.DatetimeField(
+        auto_now_add=True
+    )
+
+    updated = fields.DatetimeField(
+        auto_now=True
     )
 
 
