@@ -1,4 +1,10 @@
+from typing import Optional, List
+
 from pydantic import BaseModel, Field
+
+__all__ = (
+    'ModuleInstance', 'ModuleBase', 'ModuleResponse'
+)
 
 
 class ModuleInstance(BaseModel):
@@ -15,7 +21,7 @@ class ModuleInstance(BaseModel):
     )
 
     state: str = Field(
-        'down',
+        ...,
         title='Instance current state',
         max_length=64
     )
@@ -36,14 +42,35 @@ class ModuleBase(BaseModel):
 
 
 class ModuleResponse(ModuleBase):
-
     id: str = Field(
         ...,
         title='Module db id',
         max_length=48
     )
 
-    instances: ModuleInstance = Field(
-        ...,
-        title='Instances deployed of current module'
+    instances: List[ModuleInstance] = Field(
+        title='Instances deployed of current module',
+        default_factory=list
     )
+
+    class Config:
+        orm_mode = True
+
+    @classmethod
+    async def module_response_from_db_model(cls, db_model):
+        return cls(
+            id=db_model.id,
+            name=db_model.name,
+            secret_key=db_model.secret_key,
+            instances=await db_model.instances.all()
+        )
+
+    @classmethod
+    async def module_response_from_db_model_list(cls, db_models):
+        module_responses = []
+
+        for db_model in db_models:
+            module_responses.append(
+                await cls.module_response_from_db_model(db_model)
+            )
+        return module_responses

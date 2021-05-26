@@ -7,6 +7,8 @@ from tortoise import fields
 from tortoise.validators import Validator
 from tortoise.exceptions import ValidationError
 
+__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token')
+
 
 class NoneNegativeValidator(Validator):
     """
@@ -34,7 +36,7 @@ class Module(Model):
     id = fields.CharField(
         max_length=48,
         pk=True,
-        default=uuid4
+        default=lambda: str(uuid4())
     )
 
     name = fields.CharField(
@@ -55,6 +57,12 @@ class Module(Model):
     updated = fields.DatetimeField(
         auto_now=True
     )
+
+    @classmethod
+    async def is_unique(cls, name):
+        exists = await cls.filter(name=name).exists()
+
+        return exists
 
 
 class ModuleInstance(Model):
