@@ -7,6 +7,8 @@ from tortoise import fields
 from tortoise.validators import Validator
 from tortoise.exceptions import ValidationError
 
+from config import TOKEN_EXPIRE_TIME
+
 __all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token')
 
 
@@ -30,6 +32,10 @@ def generate_secret_key(length=64):
     key = ''.join(secrets.choice(chars) for _ in range(length))
 
     return key
+
+
+def generate_token_key(length=64):
+    return secrets.token_hex(length)
 
 
 class Module(Model):
@@ -98,8 +104,12 @@ class ModuleInstance(Model):
 
 
 class Token(Model):
+    EXPIRE_TIME = TOKEN_EXPIRE_TIME
+
     key = fields.CharField(
         max_length=64,
+        default=lambda: generate_token_key(length=48),
+        unique=True
     )
 
     instance = fields.ForeignKeyField(

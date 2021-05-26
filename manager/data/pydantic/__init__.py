@@ -1,5 +1,6 @@
 from .models import (
     ModuleInstance,
     ModuleBase,
-    ModuleResponse
+    ModuleResponse,
+    Token
 )

@@ -1,9 +1,10 @@
+from datetime import datetime
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
 __all__ = (
-    'ModuleInstance', 'ModuleBase', 'ModuleResponse'
+    'ModuleInstance', 'ModuleBase', 'ModuleResponse', 'Token'
 )
 
 
@@ -24,6 +25,16 @@ class ModuleInstance(BaseModel):
         ...,
         title='Instance current state',
         max_length=64
+    )
+
+    created: datetime = Field(
+        ...,
+        title='Instance create time'
+    )
+
+    updated: datetime = Field(
+        ...,
+        title='Instance last update time'
     )
 
 
@@ -53,6 +64,16 @@ class ModuleResponse(ModuleBase):
         default_factory=list
     )
 
+    created: datetime = Field(
+        ...,
+        title='Module create time'
+    )
+
+    updated: datetime = Field(
+        ...,
+        title='Module last update time'
+    )
+
     class Config:
         orm_mode = True
 
@@ -74,3 +95,16 @@ class ModuleResponse(ModuleBase):
                 await cls.module_response_from_db_model(db_model)
             )
         return module_responses
+
+
+class Token(BaseModel):
+    key: str = Field(
+        ...,
+        max_length=64,
+        title='Token key value'
+    )
+
+    created: datetime = Field(
+        ...,
+        title='Token create time'
+    )
