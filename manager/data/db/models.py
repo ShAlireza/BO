@@ -1,4 +1,6 @@
 from uuid import uuid4
+import secrets
+import string
 
 from tortoise.models import Model
 from tortoise import fields
@@ -21,6 +23,13 @@ class NoneNegativeValidator(Validator):
             raise ValidationError(f"Value '{value}' must be non-negative")
 
 
+def generate_secret_key(length=64):
+    chars = string.ascii_letters + string.digits + string.punctuation
+    key = ''.join(secrets.choice(chars) for _ in range(length))
+
+    return key
+
+
 class Module(Model):
     id = fields.CharField(
         max_length=48,
@@ -35,7 +44,8 @@ class Module(Model):
 
     secret_key = fields.CharField(
         max_length=128,
-        unique=True
+        unique=True,
+        default=lambda: generate_secret_key(length=64)
     )
 
     created = fields.DatetimeField(
