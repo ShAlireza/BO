@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
-    'ModuleInstanceResponse'
+    'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse'
 )
 
 
@@ -39,6 +39,10 @@ class ModuleInstanceResponse(ModuleInstanceBase):
         ...,
         title='Instance last update time'
     )
+
+
+class ModuleInstancePost(ModuleInstanceBase):
+    pass
 
 
 class ModuleBase(BaseModel):
@@ -110,4 +114,21 @@ class Token(BaseModel):
     created: datetime = Field(
         ...,
         title='Token create time'
+    )
+
+
+class LoginResponse(BaseModel):
+    token: Token = Field(
+        ...,
+        title='Token object'
+    )
+
+    kafka_host: str = Field(
+        ...,
+        title='kafka host'
+    )
+
+    kafka_port: str = Field(
+        ...,
+        title='kafka port'
     )
