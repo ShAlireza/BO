@@ -25,22 +25,34 @@ class ModuleApp(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.manager_config_file = 'config.py'
-        self.secret_key = config.secret_key
-        self.manager_host = config.manager_host
-        self.manager_port = config.manager_port
-        self.register_path = config.register_path
+        self.secret_key = config.SECRET_KEY
+        self.manager_host = config.MANAGER_HOST
+        self.manager_port = config.MANAGER_PORT
+        self.login_path = config.LOGIN_PATH
+        self.host = config.HOST
+        self.port = config.PORT
+        self.name = config.NAME
         self.token = None
 
     def login(self):
-        response = requests.get(
+        response = requests.post(
             url=f'http://{self.manager_host}:{self.manager_port}'
-                f'{self.register_path}'
+                f'{self.login_path}',
+            json={
+                'secret_key': self.secret_key,
+                'name': self.name,
+                'instance': {
+                    'host': self.host,
+                    'port': self.port
+                }
+            }
         )
 
         if response.status_code != 200:
             raise LoginFailed('login on manager failed, check you configs.')
 
         data = response.json()
+
         self.token = data.get('token').get('key')
         config.KAFKA_HOST = data.get('kafka_host')
         config.KAFKA_PORT = data.get('kafka_port')
