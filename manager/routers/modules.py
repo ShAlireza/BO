@@ -22,7 +22,7 @@ from data.db import (
     Token as TokenDB
 )
 from data.pydantic import (
-    ModuleInstance,
+    ModuleInstanceResposne,
     ModuleResponse,
     Token
 )
@@ -33,7 +33,7 @@ router = APIRouter()
 
 
 async def validate_login(
-        instance: ModuleInstance = Body(
+        instance: ModuleInstanceResposne = Body(
             ...,
             title='module_instance object for module',
             embed=True
@@ -118,7 +118,7 @@ async def login(
             title='module_instance module name',
             embed=True
         ),
-        instance: ModuleInstance = Depends(validate_login)
+        instance: ModuleInstanceResposne = Depends(validate_login)
 
 ):
     module = await ModuleDB.get(secret_key=secret_key, name=name)
@@ -139,11 +139,11 @@ async def edit():
     pass
 
 
-@router.post("/heartbeat", response_model=ModuleInstance)
+@router.post("/heartbeat", response_model=ModuleInstanceResposne)
 async def heartbeat(
         instance: ModuleInstanceDB = Depends(authorize_instance)
 ):
-    instance.status = ModuleInstance.UP
+    instance.status = ModuleInstanceDB.UP
     await instance.save()
 
     return instance

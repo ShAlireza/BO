@@ -4,11 +4,12 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 __all__ = (
-    'ModuleInstance', 'ModuleBase', 'ModuleResponse', 'Token'
+    'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
+    'ModuleInstanceResponse'
 )
 
 
-class ModuleInstance(BaseModel):
+class ModuleInstanceBase(BaseModel):
     host: str = Field(
         ...,
         title='Instance host ip or domain',
@@ -21,6 +22,8 @@ class ModuleInstance(BaseModel):
         ge=0
     )
 
+
+class ModuleInstanceResponse(ModuleInstanceBase):
     state: str = Field(
         ...,
         title='Instance current state',
@@ -59,7 +62,7 @@ class ModuleResponse(ModuleBase):
         max_length=48
     )
 
-    instances: List[ModuleInstance] = Field(
+    instances: List[ModuleInstanceResponse] = Field(
         title='Instances deployed of current module',
         default_factory=list
     )
