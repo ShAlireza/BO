@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 from config import DATABASE_URL
-from routers import service_router
+from routers import module_router
 
 app = FastAPI()
 
@@ -15,7 +15,7 @@ register_tortoise(
 )
 
 app.include_router(
-    service_router,
-    prefix='/api/service',
+    module_router,
+    prefix='/api/module',
     tags=['Service']
 )

@@ -42,12 +42,12 @@ async def validate_login(
             title='module_instance object for module',
             embed=True
         ),
-        validation_token: str = Body(
-            ...,
-            title='module validation_token',
-            embed=True,
-            max_length=128
-        )
+        # validation_token: str = Body(
+        #     ...,
+        #     title='module validation_token',
+        #     embed=True,
+        #     max_length=128
+        # )
 ):
     # async with aiohttp.ClientSession() as session:
     #     async with session.get(
@@ -125,7 +125,7 @@ async def login(
         instance: ModuleInstancePost = Depends(validate_login)
 
 ):
-    module = await ModuleDB.get(secret_key=secret_key, name=name)
+    module = await ModuleDB.get(secret_key=fr'{secret_key}', name=name)
     instanceDB, _ = await ModuleInstanceDB.get_or_create(
         module=module,
         **instance.dict()

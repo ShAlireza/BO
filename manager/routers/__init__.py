@@ -1,3 +1,3 @@
-from .modules import router as service_router
+from .modules import router as module_router
 
-__all__ = ('service_router',)
+__all__ = ('module_router',)
