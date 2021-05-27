@@ -28,7 +28,7 @@ class NoneNegativeValidator(Validator):
 
 
 def generate_secret_key(length=64):
-    chars = string.ascii_letters + string.digits + string.punctuation
+    chars = string.ascii_letters + string.digits + "@$#!.<=>+-_?*%"
     key = ''.join(secrets.choice(chars) for _ in range(length))
 
     return key
@@ -108,7 +108,7 @@ class Token(Model):
 
     key = fields.CharField(
         max_length=64,
-        default=lambda: generate_token_key(length=48),
+        default=lambda: generate_token_key(length=24),
         unique=True
     )
 

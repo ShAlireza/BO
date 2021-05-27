@@ -90,7 +90,9 @@ class ModuleResponse(ModuleBase):
             id=db_model.id,
             name=db_model.name,
             secret_key=db_model.secret_key,
-            instances=await db_model.instances.all()
+            instances=await db_model.instances.all(),
+            created=db_model.created,
+            updated=db_model.updated
         )
 
     @classmethod
