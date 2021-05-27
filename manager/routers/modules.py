@@ -3,6 +3,8 @@ from typing import Optional, List
 import aiohttp
 from aiohttp import ContentTypeError
 
+from config import KAFKA_HOST, KAFKA_PORT
+
 from fastapi import (
     APIRouter,
     Path,
@@ -22,9 +24,11 @@ from data.db import (
     Token as TokenDB
 )
 from data.pydantic import (
-    ModuleInstanceResposne,
+    ModuleInstanceResponse,
     ModuleResponse,
-    Token
+    ModuleInstancePost,
+    Token,
+    LoginResponse
 )
 
 __all__ = ('router',)
@@ -33,7 +37,7 @@ router = APIRouter()
 
 
 async def validate_login(
-        instance: ModuleInstanceResposne = Body(
+        instance: ModuleInstancePost = Body(
             ...,
             title='module_instance object for module',
             embed=True
@@ -45,18 +49,18 @@ async def validate_login(
             max_length=128
         )
 ):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-                f'http://{instance.host}:{instance.port}/login-validate'
-        ) as response:
-            try:
-                result = await response.json()
-            except ContentTypeError as e:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-    if result.get('validation_token') != validation_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='given ip not matched with request host')
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.get(
+    #             f'http://{instance.host}:{instance.port}/login-validate'
+    #     ) as response:
+    #         try:
+    #             result = await response.json()
+    #         except ContentTypeError as e:
+    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    #
+    # if result.get('validation_token') != validation_token:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                         detail='given ip not matched with request host')
 
     return instance
 
@@ -104,7 +108,7 @@ async def register(
     return module_response
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=LoginResponse)
 async def login(
         response: Response,
         request: Request,
@@ -118,7 +122,7 @@ async def login(
             title='module_instance module name',
             embed=True
         ),
-        instance: ModuleInstanceResposne = Depends(validate_login)
+        instance: ModuleInstancePost = Depends(validate_login)
 
 ):
     module = await ModuleDB.get(secret_key=secret_key, name=name)
@@ -131,7 +135,11 @@ async def login(
         instance=instanceDB
     )
 
-    return token
+    return LoginResponse(
+        token=token,
+        kafka_host=KAFKA_HOST,
+        kafka_port=KAFKA_PORT
+    )
 
 
 @router.put("/{register_name}")
@@ -139,7 +147,7 @@ async def edit():
     pass
 
 
-@router.post("/heartbeat", response_model=ModuleInstanceResposne)
+@router.post("/heartbeat", response_model=ModuleInstanceResponse)
 async def heartbeat(
         instance: ModuleInstanceDB = Depends(authorize_instance)
 ):
