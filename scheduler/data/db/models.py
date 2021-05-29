@@ -6,8 +6,11 @@ from tortoise import fields
 
 class CronJobModel(Model):
     id = fields.CharField(max_length=48, pk=True, default=uuid4)
+
     enable = fields.BooleanField(default=True)
     technology = fields.CharField(max_length=64)
+    mode = fields.CharField(max_length=32)
+
     host = fields.CharField(max_length=128)
     port = fields.IntField(default=80)
     minute = fields.CharField(max_length=16, default='*')

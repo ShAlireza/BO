@@ -24,6 +24,7 @@ class CronJob(CronJobShared):
                              f'--tech {self.technology} '
                              f'--host {self.host} '
                              f'--port {self.port} '
+                             f'--mode {self.mode} '
                              f'--kafka-host {KAFKA_HOST} '
                              f'--kafka-port {KAFKA_PORT}')
         return self.full_command
