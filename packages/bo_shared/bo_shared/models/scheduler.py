@@ -88,13 +88,6 @@ class CronJob(CronJobBase):
         title='Cron job command to execute'
     )
 
-    def generate_full_command(self):
-        self.full_command = (f'{PYTHONPATH}/internal/event_push.py '
-                             f'--tech {self.technology} '
-                             f'--host {self.host} '
-                             f'--port {self.port}')
-        return self.full_command
-
 
 class CronJobPost(CronJobBase):
     pass
