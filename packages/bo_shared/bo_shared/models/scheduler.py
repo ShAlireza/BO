@@ -1,17 +1,24 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Type, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 
 try:
     from config import PYTHONPATH
 except ImportError:
     raise ImportError('PYTHONPATH not found in config file')
 
-__all__ = ('CronJob', 'CronJobPost', 'CronJobResponse', 'CronJobPatch')
+__all__ = ('CronJob', 'CronJobPost', 'CronJobResponse', 'CronJobPatch',
+           'MODES')
 
 CRON_TIME_REGEX = r'^((\d+,)+\d+|([*]/\d+)|(\d+(/|-)\d+)|\d+|[*])$'
+
+MODES = (
+    'backup',
+    'restore',
+    'validate'
+)
 
 
 class CronJobBase(BaseModel):
@@ -24,6 +31,12 @@ class CronJobBase(BaseModel):
         ...,
         title='CronJob technology',
         max_length=128
+    )
+
+    mode: str = Field(
+        ...,
+        title='event mode (backup, validate, restore)',
+        max_length=32
     )
 
     host: str = Field(
@@ -70,6 +83,14 @@ class CronJobBase(BaseModel):
         None,
         title='Custom optional label for job'
     )
+
+    @validator('mode', pre=True, always=True)
+    def validate_mode(cls: 'CronJob', value: Any) -> 'CronJob':
+        print(value)
+        if value not in MODES:
+            raise ValueError(f'mode should be one of {MODES}')
+
+        return value
 
     @staticmethod
     def instance_from_tortoise_model(model):
