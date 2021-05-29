@@ -3,6 +3,7 @@ from .models import (
     ModuleInstanceResponse,
     ModuleInstancePost,
     LoginResponse,
+    SecretKey,
     ModuleBase,
     ModuleResponse,
     Token

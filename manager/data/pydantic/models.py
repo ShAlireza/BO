@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field
 
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
-    'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse'
+    'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
+    'SecretKey'
 )
 
 
@@ -45,17 +46,27 @@ class ModuleInstancePost(ModuleInstanceBase):
     pass
 
 
+class SecretKey(BaseModel):
+    secret_key: str = Field(
+        ...,
+        max_length=128,
+        title='Secret key for manager <-> module communication'
+    )
+
+    valid: bool = Field(
+        ...,
+        title='Key is valid or not'
+    )
+
+    class Config:
+        orm_mode = True
+
+
 class ModuleBase(BaseModel):
     name: str = Field(
         ...,
         title='Service name(mysql, postgres, git, ...)',
         max_length=128
-    )
-
-    secret_key: str = Field(
-        ...,
-        max_length=128,
-        title='Secret key for manager <-> module communication'
     )
 
 

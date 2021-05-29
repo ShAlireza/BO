@@ -22,58 +22,25 @@ from fastapi import (
 from data.db import (
     Module as ModuleDB,
     ModuleInstance as ModuleInstanceDB,
-    Token as TokenDB
+    Token as TokenDB,
+    SecretKey as SecretKeyDB
 )
 from data.pydantic import (
     ModuleInstanceResponse,
     ModuleResponse,
     ModuleInstancePost,
     Token,
-    LoginResponse
+    LoginResponse,
+    SecretKey
 )
 
 __all__ = ('router',)
 
-
 # TODO
-#  1. validate modules login bye sending request to their provided host and
-#  port. Logic: module generate a random 64char validation_token and save it.
-#  Then send token with its host and port to manager server. Manager then
-#  requests to module with provided validation_token. It should return a
-#  200 status code.
-#  2. ...
+#  1. ...
 
 
 router = APIRouter()
-
-
-async def validate_login(
-        instance: ModuleInstancePost = Body(
-            ...,
-            title='module_instance object for module',
-            embed=True
-        ),
-        # validation_token: str = Body(
-        #     ...,
-        #     title='module validation_token',
-        #     embed=True,
-        #     max_length=128
-        # )
-):
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.get(
-    #             f'http://{instance.host}:{instance.port}/login-validate'
-    #     ) as response:
-    #         try:
-    #             result = await response.json()
-    #         except ContentTypeError as e:
-    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-    #
-    # if result.get('validation_token') != validation_token:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-    #                         detail='given ip not matched with request host')
-
-    return instance
 
 
 async def authorize_instance(
@@ -102,35 +69,20 @@ async def get_registered():
     return module_responses
 
 
-@router.post("/", response_model=ModuleResponse)
+@router.post("/", response_model=SecretKey)
 async def register(
         response: Response,
-        name: str = Body(..., title='Module name', max_length=128, embed=True),
-        kafka_handler: KafkaHandler = Depends(get_kafka_handler)
 ):
-    module, created = await ModuleDB.get_or_create(name=name)
+    secret_key = await SecretKeyDB.create()
 
-    await module.fetch_related('instances')
-
-    module_response = await ModuleResponse.module_response_from_db_model(
-        db_model=module
-    )
-
-    if created:
-        response.status_code = status.HTTP_201_CREATED
-    else:
-        response.status_code = status.HTTP_200_OK
-
-    kafka_handler.create_topics(new_topics=[(name, 3, 1)])
-
-    return module_response
+    return secret_key
 
 
 @router.post("/login", response_model=LoginResponse)
 async def login(
         response: Response,
         request: Request,
-        secret_key: str = Body(
+        secret_key: SecretKey = Body(
             ...,
             title='Secret key of module for logging in',
             embed=True
@@ -140,10 +92,18 @@ async def login(
             title='module_instance module name',
             embed=True
         ),
-        instance: ModuleInstancePost = Depends(validate_login)
-
+        instance: ModuleInstancePost = Body(
+            ...,
+            title='Module instance body',
+            embed=True
+        ),
+        kafka_handler: KafkaHandler = Depends(get_kafka_handler)
 ):
-    module = await ModuleDB.get(secret_key=fr'{secret_key}', name=name)
+    await SecretKeyDB.get(secret_key=secret_key, valid=True)
+
+    module, created = await ModuleDB.get_or_create(name=name)
+    kafka_handler.create_topics(new_topics=[(name, 3, 1)])
+
     instanceDB, _ = await ModuleInstanceDB.get_or_create(
         module=module,
         **instance.dict()

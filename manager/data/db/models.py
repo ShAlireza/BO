@@ -9,7 +9,8 @@ from tortoise.exceptions import ValidationError
 
 from config import TOKEN_EXPIRE_TIME
 
-__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token')
+__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token', 
+           'SecretKey')
 
 
 class NoneNegativeValidator(Validator):
@@ -38,6 +39,18 @@ def generate_token_key(length=64):
     return secrets.token_hex(length)
 
 
+class SecretKey(Model):
+    secret_key = fields.CharField(
+        max_length=128,
+        unique=True,
+        default=lambda: generate_secret_key(length=64)
+    )
+    
+    valid = fields.BooleanField(
+        default=True
+    )
+
+
 class Module(Model):
     id = fields.CharField(
         max_length=48,
@@ -50,12 +63,6 @@ class Module(Model):
         unique=True
     )
 
-    secret_key = fields.CharField(
-        max_length=128,
-        unique=True,
-        default=lambda: generate_secret_key(length=64)
-    )
-
     created = fields.DatetimeField(
         auto_now_add=True
     )
@@ -63,8 +70,6 @@ class Module(Model):
     updated = fields.DatetimeField(
         auto_now=True
     )
-    
-    topic_name
 
     @classmethod
     async def is_unique(cls, name):
