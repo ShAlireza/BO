@@ -32,6 +32,15 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-m',
+    '--mode',
+    metavar='mode',
+    type=str,
+    help='event mode (backup, restore or validate)',
+    required=True
+)
+
+parser.add_argument(
     '-H',
     '--host',
     metavar='host',
@@ -71,6 +80,7 @@ if __name__ == '__main__':
     push_data = {
         'id': args.id,
         'tech': args.tech,
+        'mode': args.mode,
         'host': args.host,
         'port': args.port
     }
