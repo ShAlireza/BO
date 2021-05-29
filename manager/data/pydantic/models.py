@@ -134,3 +134,8 @@ class LoginResponse(BaseModel):
         ...,
         title='kafka port'
     )
+
+    kafka_topic: str = Field(
+        ...,
+        title='module topic name in kafka'
+    )

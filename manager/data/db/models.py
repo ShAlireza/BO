@@ -63,6 +63,8 @@ class Module(Model):
     updated = fields.DatetimeField(
         auto_now=True
     )
+    
+    topic_name
 
     @classmethod
     async def is_unique(cls, name):
