@@ -3,6 +3,7 @@ from typing import Optional, List
 import aiohttp
 from aiohttp import ContentTypeError
 
+from internal import KafkaHandler
 from config import KAFKA_HOST, KAFKA_PORT
 
 from fastapi import (
@@ -32,6 +33,16 @@ from data.pydantic import (
 )
 
 __all__ = ('router',)
+
+
+# TODO
+#  1. validate modules login bye sending request to their provided host and
+#  port. Logic: module generate a random 64char validation_token and save it.
+#  Then send token with its host and port to manager server. Manager then
+#  requests to module with provided validation_token. It should return a
+#  200 status code.
+#  2. ...
+
 
 router = APIRouter()
 
@@ -76,6 +87,10 @@ async def authorize_instance(
     return token.instance
 
 
+async def get_kafka_handler():
+    return KafkaHandler()
+
+
 @router.get("/", response_model=List[ModuleResponse])
 async def get_registered():
     modules = await ModuleDB.all().prefetch_related('instances')
@@ -90,7 +105,8 @@ async def get_registered():
 @router.post("/", response_model=ModuleResponse)
 async def register(
         response: Response,
-        name: str = Body(..., title='Module name', max_length=128, embed=True)
+        name: str = Body(..., title='Module name', max_length=128, embed=True),
+        kafka_handler: KafkaHandler = Depends(get_kafka_handler)
 ):
     module, created = await ModuleDB.get_or_create(name=name)
 
@@ -104,6 +120,8 @@ async def register(
         response.status_code = status.HTTP_201_CREATED
     else:
         response.status_code = status.HTTP_200_OK
+
+    kafka_handler.create_topics(new_topics=[(name, 3, 1)])
 
     return module_response
 
@@ -138,7 +156,8 @@ async def login(
     return LoginResponse(
         token=token,
         kafka_host=KAFKA_HOST,
-        kafka_port=KAFKA_PORT
+        kafka_port=KAFKA_PORT,
+        kafka_topic=name
     )
 
 
