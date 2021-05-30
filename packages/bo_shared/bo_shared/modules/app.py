@@ -49,13 +49,19 @@ class ModuleApp(FastAPI):
         )
 
         if response.status_code != 200:
-            raise LoginFailed('login on manager failed, check you configs.')
+            raise LoginFailed(f'login on manager failed, check you configs. '
+                              f'(manager status_code: {response.status_code})')
 
         data = response.json()
 
         self.token = data.get('token').get('key')
         config.KAFKA_HOST = data.get('kafka_host')
         config.KAFKA_PORT = data.get('kafka_port')
+        config.KAFKA_TOPIC = data.get('kafka_topic')
+
+        assert config.KAFKA_HOST is not None
+        assert config.KAFKA_PORT is not None
+        assert config.KAFKA_TOPIC is not None
 
 
 def create_module_app():
