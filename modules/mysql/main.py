@@ -4,4 +4,4 @@ import config
 
 app = create_module_app()
 
-print(config.KAFKA_HOST, config.KAFKA_PORT)
+print(config.KAFKA_HOST, config.KAFKA_PORT, config.KAFKA_TOPIC)

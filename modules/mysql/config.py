@@ -1,7 +1,10 @@
-SECRET_KEY = "JdfY_oGeX@0ksZv@KSKBh$TN46!GK-TPHpmops*.W2a65*6eYz6aoRf-_QQH5>IB"
+SECRET_KEY = "8h2?GW=rw@GkyDAXLL!-_z4r?6Cr96c!NjRd%!G#qj=a>*AJ1IL$r96FXNhy3_F4"
 MANAGER_HOST = 'localhost'
 MANAGER_PORT = '8000'
 LOGIN_PATH = '/api/module/login'
 HOST = 'localhost'
 PORT = 9000
 NAME = 'mysql'
+KAFKA_HOST = None
+KAFKA_PORT = None
+KAFKA_TOPIC = None
