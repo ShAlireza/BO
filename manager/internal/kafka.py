@@ -9,7 +9,7 @@ __all__ = ('KafkaHandler',)
 
 
 # TODO
-#  1. log errors with logger 2
+#  1. log errors with logger
 #  2. add ACLs to topics for that every module has access to its own topic only
 #  3. ...
 
@@ -41,7 +41,7 @@ class KafkaHandler:
                 future.result()
                 print(f"Topic {topic} created")
             except KafkaException as e:
-                raise e
+                print(e)
 
     def delete_topics(self, topics: List[str]):
 

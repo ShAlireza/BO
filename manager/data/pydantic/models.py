@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
     'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
-    'SecretKey'
+    'SecretKey', 'SecretKeyResponse'
 )
 
 
@@ -54,12 +54,20 @@ class SecretKey(BaseModel):
     )
 
     valid: bool = Field(
-        ...,
+        default=True,
         title='Key is valid or not'
     )
 
     class Config:
         orm_mode = True
+
+
+class SecretKeyResponse(SecretKey):
+    id: int = Field(
+        ...,
+        title='id of secret key',
+        ge=0
+    )
 
 
 class ModuleBase(BaseModel):

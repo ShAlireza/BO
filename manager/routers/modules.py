@@ -31,7 +31,8 @@ from data.pydantic import (
     ModuleInstancePost,
     Token,
     LoginResponse,
-    SecretKey
+    SecretKey,
+    SecretKeyResponse,
 )
 
 __all__ = ('router',)
@@ -69,11 +70,34 @@ async def get_registered():
     return module_responses
 
 
-@router.post("/", response_model=SecretKey)
-async def register(
+@router.post("/secret-key", response_model=SecretKeyResponse)
+async def create_secret_key(
         response: Response,
 ):
     secret_key = await SecretKeyDB.create()
+
+    return secret_key
+
+
+@router.get("/secret-key", response_model=List[SecretKeyResponse])
+async def get_secret_keys(
+        response: Response,
+):
+    secret_keys = await SecretKeyDB.all()
+
+    return secret_keys
+
+
+@router.patch("/secret-key/{secret_key_id}", response_model=SecretKeyResponse)
+async def toggle_secret_key_validity(
+        response: Response,
+        secret_key_id: int = Path(..., title='id of secret_key', ge=0)
+):
+    secret_key = await SecretKeyDB.get(id=secret_key_id)
+
+    secret_key.valid = not secret_key.valid
+
+    await secret_key.save()
 
     return secret_key
 
@@ -82,7 +106,7 @@ async def register(
 async def login(
         response: Response,
         request: Request,
-        secret_key: SecretKey = Body(
+        secret_key: str = Body(
             ...,
             title='Secret key of module for logging in',
             embed=True

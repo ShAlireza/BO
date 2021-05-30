@@ -6,5 +6,6 @@ from .models import (
     SecretKey,
     ModuleBase,
     ModuleResponse,
-    Token
+    Token,
+    SecretKeyResponse
 )
