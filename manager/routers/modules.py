@@ -102,6 +102,18 @@ async def toggle_secret_key_validity(
     return secret_key
 
 
+@router.delete('secret-key/{secret_key_id}', response_model=SecretKeyResponse)
+async def delete_secret_key(
+        response: Response,
+        secret_key_id: int = Path(..., title='id of secret_key', ge=0)
+):
+    secret_key = await SecretKeyDB.get(id=secret_key_id)
+
+    await SecretKeyDB.filter(id=secret_key_id).delete()
+
+    return secret_key
+
+
 @router.post("/login", response_model=LoginResponse)
 async def login(
         response: Response,
