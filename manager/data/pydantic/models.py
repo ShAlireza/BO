@@ -1,160 +1,17 @@
-from datetime import datetime
-from typing import Optional, List
-
-from pydantic import BaseModel, Field
+from bo_shared.models.manager import (
+    ModuleInstanceBase,
+    ModuleBase,
+    ModuleResponse,
+    Token,
+    ModuleInstanceResponse,
+    ModuleInstancePost,
+    LoginResponse,
+    SecretKey,
+    SecretKeyResponse
+)
 
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
     'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
     'SecretKey', 'SecretKeyResponse'
 )
-
-
-class ModuleInstanceBase(BaseModel):
-    host: str = Field(
-        ...,
-        title='Instance host ip or domain',
-        max_length=256
-    )
-
-    port: int = Field(
-        ...,
-        title='Instance port',
-        ge=0
-    )
-
-
-class ModuleInstanceResponse(ModuleInstanceBase):
-    state: str = Field(
-        ...,
-        title='Instance current state',
-        max_length=64
-    )
-
-    created: datetime = Field(
-        ...,
-        title='Instance create time'
-    )
-
-    updated: datetime = Field(
-        ...,
-        title='Instance last update time'
-    )
-
-
-class ModuleInstancePost(ModuleInstanceBase):
-    pass
-
-
-class SecretKey(BaseModel):
-    secret_key: str = Field(
-        ...,
-        max_length=128,
-        title='Secret key for manager <-> module communication'
-    )
-
-    valid: bool = Field(
-        default=True,
-        title='Key is valid or not'
-    )
-
-    class Config:
-        orm_mode = True
-
-
-class SecretKeyResponse(SecretKey):
-    id: int = Field(
-        ...,
-        title='id of secret key',
-        ge=0
-    )
-
-
-class ModuleBase(BaseModel):
-    name: str = Field(
-        ...,
-        title='Service name(mysql, postgres, git, ...)',
-        max_length=128
-    )
-
-
-class ModuleResponse(ModuleBase):
-    id: str = Field(
-        ...,
-        title='Module db id',
-        max_length=48
-    )
-
-    instances: List[ModuleInstanceResponse] = Field(
-        title='Instances deployed of current module',
-        default_factory=list
-    )
-
-    created: datetime = Field(
-        ...,
-        title='Module create time'
-    )
-
-    updated: datetime = Field(
-        ...,
-        title='Module last update time'
-    )
-
-    class Config:
-        orm_mode = True
-
-    @classmethod
-    async def module_response_from_db_model(cls, db_model):
-        return cls(
-            id=db_model.id,
-            name=db_model.name,
-            secret_key=db_model.secret_key,
-            instances=await db_model.instances.all(),
-            created=db_model.created,
-            updated=db_model.updated
-        )
-
-    @classmethod
-    async def module_response_from_db_model_list(cls, db_models):
-        module_responses = []
-
-        for db_model in db_models:
-            module_responses.append(
-                await cls.module_response_from_db_model(db_model)
-            )
-        return module_responses
-
-
-class Token(BaseModel):
-    key: str = Field(
-        ...,
-        max_length=64,
-        title='Token key value'
-    )
-
-    created: datetime = Field(
-        ...,
-        title='Token create time'
-    )
-
-
-class LoginResponse(BaseModel):
-    token: Token = Field(
-        ...,
-        title='Token object'
-    )
-
-    kafka_host: str = Field(
-        ...,
-        title='kafka host'
-    )
-
-    kafka_port: str = Field(
-        ...,
-        title='kafka port'
-    )
-
-    kafka_topic: str = Field(
-        ...,
-        title='module topic name in kafka'
-    )

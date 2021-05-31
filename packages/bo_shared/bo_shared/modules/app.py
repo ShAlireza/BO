@@ -68,4 +68,8 @@ def create_module_app():
     app = ModuleApp()
     app.login()
 
+    @app.get("/heart")
+    def heart():
+        pass
+
     return app
