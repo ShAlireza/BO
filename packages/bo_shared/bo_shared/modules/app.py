@@ -1,7 +1,4 @@
-import yaml
 import requests
-from pathlib import Path
-import zipfile
 
 from fastapi import FastAPI
 
