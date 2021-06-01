@@ -6,11 +6,15 @@ import zipfile
 from fastapi import FastAPI
 
 
-class ManagerConfigFileNotFound(Exception):
+class ModuleException(Exception):
     pass
 
 
-class LoginFailed(Exception):
+class ManagerConfigFileNotFound(ModuleException):
+    pass
+
+
+class LoginFailed(ModuleException):
     pass
 
 
@@ -24,7 +28,6 @@ class ModuleApp(FastAPI):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.manager_config_file = 'config.py'
         self.secret_key = config.SECRET_KEY
         self.manager_host = config.MANAGER_HOST
         self.manager_port = config.MANAGER_PORT
