@@ -1,6 +1,7 @@
 import asyncio
 
 import aiohttp
+from aiohttp import ClientConnectionError
 
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
@@ -21,17 +22,20 @@ async def beat():
 
     async with aiohttp.ClientSession() as session:
         for instance in instances:
-            async with session.get(
-                    url=f'http://{instance.host}:{instance.port}/heart') as response:
-                output = open(OUTPUT_FILENAME, 'a')
-                output.write(
-                    f'Response: text={await response.text()}, status={response.status}\n')
-                output.flush()
-                output.close()
-                if response.status == 200:
-                    instance.state = instance.UP
-                else:
-                    instance.state = instance.DOWN
+            try:
+                async with session.get(
+                        url=f'http://{instance.host}:{instance.port}/heart') as response:
+                    output = open(OUTPUT_FILENAME, 'a')
+                    output.write(
+                        f'Response: text={await response.text()}, status={response.status}\n')
+                    output.flush()
+                    output.close()
+                    if response.status == 200:
+                        instance.state = instance.UP
+                    else:
+                        instance.state = instance.DOWN
+            except ClientConnectionError as e:
+                instance.state = instance.DOWN
             await instance.save()
 
 

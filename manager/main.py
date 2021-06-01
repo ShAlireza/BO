@@ -10,7 +10,7 @@ app = FastAPI()
 app.include_router(
     module_router,
     prefix='/api/module',
-    tags=['Service']
+    tags=['Module']
 )
 
 register_tortoise(
