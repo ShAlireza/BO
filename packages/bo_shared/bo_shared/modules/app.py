@@ -32,6 +32,7 @@ class ModuleApp(FastAPI):
         self.host = config.HOST
         self.port = config.PORT
         self.name = config.NAME
+        self.valid_credential_names = config.VALID_CREDENTIAL_NAMES
         self.token = None
 
     def login(self):
@@ -40,7 +41,10 @@ class ModuleApp(FastAPI):
                 f'{self.login_path}',
             json={
                 'secret_key': self.secret_key,
-                'name': self.name,
+                'module': {
+                    'name': self.name,
+                    'valid_credential_names': self.valid_credential_names
+                },
                 'instance': {
                     'host': self.host,
                     'port': self.port

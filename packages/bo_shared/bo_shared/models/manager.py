@@ -6,7 +6,8 @@ from pydantic import BaseModel, Field
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
     'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
-    'SecretKey', 'SecretKeyResponse'
+    'SecretKey', 'SecretKeyResponse', 'ModulePost', 'ServiceInstanceData',
+    'ServiceInstanceCredential'
 )
 
 
@@ -77,6 +78,14 @@ class ModuleBase(BaseModel):
         max_length=128
     )
 
+    valid_credential_names: str = Field(
+        title='Valid credential names for this service'
+    )
+
+
+class ModulePost(ModuleBase):
+    pass
+
 
 class ModuleResponse(ModuleBase):
     id: str = Field(
@@ -109,6 +118,7 @@ class ModuleResponse(ModuleBase):
             id=db_model.id,
             name=db_model.name,
             instances=await db_model.instances.all(),
+            valid_credential_names=db_model.valid_credential_names,
             created=db_model.created,
             updated=db_model.updated
         )
@@ -156,4 +166,37 @@ class LoginResponse(BaseModel):
     kafka_topic: str = Field(
         ...,
         title='module topic name in kafka'
+    )
+
+
+class ServiceInstanceCredential(BaseModel):
+    name: str = Field(
+        ...,
+        title='Credential name',
+        max_length=256
+    )
+
+    value: str = Field(
+        ...,
+        title='Credential value',
+        max_length=512
+    )
+
+
+class ServiceInstanceData(BaseModel):
+    host: str = Field(
+        ...,
+        title='Instance host ip or domain',
+        max_length=256
+    )
+
+    port: int = Field(
+        ...,
+        title='Instance port',
+        ge=0
+    )
+
+    credentials: List[ServiceInstanceCredential] = Field(
+        ...,
+
     )
