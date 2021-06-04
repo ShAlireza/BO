@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS "module" (
     "id" VARCHAR(48) NOT NULL  PRIMARY KEY,
     "name" VARCHAR(128) NOT NULL UNIQUE,
     "created" TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    "updated" TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP
+    "updated" TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    "valid_credential_names" TEXT NOT NULL  /* a comma separated set of values that are valid for this service credentials names */
 );
 CREATE TABLE IF NOT EXISTS "moduleinstance" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -18,6 +19,18 @@ CREATE TABLE IF NOT EXISTS "secretkey" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "secret_key" VARCHAR(128) NOT NULL UNIQUE,
     "valid" INT NOT NULL  DEFAULT 1
+);
+CREATE TABLE IF NOT EXISTS "serviceinstancedata" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "host" VARCHAR(256) NOT NULL,
+    "port" INT NOT NULL,
+    "module_id" VARCHAR(48) NOT NULL REFERENCES "module" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "serviceinstancecredential" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(256) NOT NULL,
+    "value" VARCHAR(512) NOT NULL,
+    "service_instance_id" INT NOT NULL REFERENCES "serviceinstancedata" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "token" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

@@ -7,5 +7,8 @@ from .models import (
     ModuleBase,
     ModuleResponse,
     Token,
-    SecretKeyResponse
+    SecretKeyResponse,
+    ModulePost,
+    ServiceInstanceData,
+    ServiceInstanceCredential
 )

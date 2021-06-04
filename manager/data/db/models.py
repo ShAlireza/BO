@@ -9,8 +9,13 @@ from tortoise.exceptions import ValidationError
 
 from config import TOKEN_EXPIRE_TIME
 
-__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token', 
+__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token',
            'SecretKey')
+
+
+# Todo
+#  1. Module -> ServiceHandler, ModuleInstance -> ServiceHandlerInstance
+#  2. ...
 
 
 class NoneNegativeValidator(Validator):
@@ -45,7 +50,7 @@ class SecretKey(Model):
         unique=True,
         default=lambda: generate_secret_key(length=64)
     )
-    
+
     valid = fields.BooleanField(
         default=True
     )
@@ -71,11 +76,22 @@ class Module(Model):
         auto_now=True
     )
 
+    valid_credential_names = fields.TextField(
+        description='a comma separated set of values that are valid for this '
+                    'service credentials names'
+    )
+
     @classmethod
     async def is_unique(cls, name):
         exists = await cls.filter(name=name).exists()
 
         return exists
+
+    @property
+    def valid_credential_names_list(self):
+        import re
+
+        return re.split('\\s*,\\s*', self.valid_credential_names)
 
 
 class ModuleInstance(Model):
@@ -107,6 +123,38 @@ class ModuleInstance(Model):
 
     updated = fields.DatetimeField(
         auto_now=True
+    )
+
+
+class ServiceInstanceData(Model):
+    host = fields.CharField(
+        max_length=256
+    )
+
+    port = fields.IntField(
+        validators=[NoneNegativeValidator]
+    )
+
+    module = fields.ForeignKeyField(
+        model_name='manager.Module',
+        related_name='service_instances',
+        on_delete=fields.CASCADE
+    )
+
+
+class ServiceInstanceCredential(Model):
+    name = fields.CharField(
+        max_length=256
+    )
+
+    value = fields.CharField(
+        max_length=512
+    )
+
+    service_instance = fields.ForeignKeyField(
+        model_name='manager.ServiceInstanceData',
+        related_name='credentials',
+        on_delete=fields.CASCADE
     )
 
 

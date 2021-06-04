@@ -33,6 +33,9 @@ from data.pydantic import (
     LoginResponse,
     SecretKey,
     SecretKeyResponse,
+    ModulePost,
+    ServiceInstanceData,
+    ServiceInstanceCredential
 )
 
 __all__ = ('router',)
@@ -123,9 +126,9 @@ async def login(
             title='Secret key of module for logging in',
             embed=True
         ),
-        name: str = Body(
+        module: ModulePost = Body(
             ...,
-            title='module_instance module name',
+            title='module_instance module initial data',
             embed=True
         ),
         instance: ModuleInstancePost = Body(
@@ -137,23 +140,28 @@ async def login(
 ):
     await SecretKeyDB.get(secret_key=secret_key, valid=True)
 
-    module, created = await ModuleDB.get_or_create(name=name)
-    kafka_handler.create_topics(new_topics=[(name, 3, 1)])
+    module_db, created = await ModuleDB.get_or_create(
+        name=module.name,
+        valid_credential_names=module.valid_credential_names
+    )
+    await module_db.save()
 
-    instanceDB, _ = await ModuleInstanceDB.get_or_create(
-        module=module,
+    kafka_handler.create_topics(new_topics=[(module.name, 3, 1)])
+
+    instance_db, _ = await ModuleInstanceDB.get_or_create(
+        module=module_db,
         **instance.dict()
     )
 
     token = await TokenDB.create(
-        instance=instanceDB
+        instance=instance_db
     )
 
     return LoginResponse(
         token=token,
         kafka_host=KAFKA_HOST,
         kafka_port=KAFKA_PORT,
-        kafka_topic=name
+        kafka_topic=module.name
     )
 
 
@@ -170,3 +178,4 @@ async def heartbeat(
     await instance.save()
 
     return instance
+
