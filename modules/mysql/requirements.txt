@@ -11,3 +11,4 @@ tortoise-orm==0.17.3
 aerich==0.5.3
 aiohttp==3.7.4.post0
 confluent-kafka==1.7.0
+minio==7.0.3
