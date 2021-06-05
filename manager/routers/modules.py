@@ -3,8 +3,8 @@ from typing import Optional, List
 import aiohttp
 from aiohttp import ContentTypeError
 
-from internal import KafkaHandler
-from config import KAFKA_HOST, KAFKA_PORT
+from internal import KafkaHandler, RabbitMQHandler
+from config import RABBITMQ_HOST, RABBITMQ_PORT
 
 from fastapi import (
     APIRouter,
@@ -60,6 +60,10 @@ async def authorize_instance(
 
 async def get_kafka_handler():
     return KafkaHandler()
+
+
+async def get_rabbitmq_handler():
+    return RabbitMQHandler()
 
 
 @router.get("/", response_model=List[ModuleResponse])
@@ -119,8 +123,6 @@ async def delete_secret_key(
 
 @router.post("/login", response_model=LoginResponse)
 async def login(
-        response: Response,
-        request: Request,
         secret_key: str = Body(
             ...,
             title='Secret key of module for logging in',
@@ -136,7 +138,7 @@ async def login(
             title='Module instance body',
             embed=True
         ),
-        kafka_handler: KafkaHandler = Depends(get_kafka_handler)
+        rabbitmq_handler: RabbitMQHandler = Depends(get_rabbitmq_handler)
 ):
     await SecretKeyDB.get(secret_key=secret_key, valid=True)
 
@@ -146,7 +148,9 @@ async def login(
     )
     await module_db.save()
 
-    kafka_handler.create_topics(new_topics=[(module.name, 3, 1)])
+    rabbitmq_handler.create_queues(
+        queue_names=[module.name]
+    )
 
     instance_db, _ = await ModuleInstanceDB.get_or_create(
         module=module_db,
@@ -159,9 +163,9 @@ async def login(
 
     return LoginResponse(
         token=token,
-        kafka_host=KAFKA_HOST,
-        kafka_port=KAFKA_PORT,
-        kafka_topic=module.name
+        rabbitmq_host=RABBITMQ_HOST,
+        rabbitmq_port=RABBITMQ_PORT,
+        rabbitmq_queue=module.name
     )
 
 
@@ -178,4 +182,3 @@ async def heartbeat(
     await instance.save()
 
     return instance
-

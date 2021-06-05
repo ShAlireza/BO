@@ -153,19 +153,19 @@ class LoginResponse(BaseModel):
         title='Token object'
     )
 
-    kafka_host: str = Field(
+    rabbitmq_host: str = Field(
         ...,
-        title='kafka host'
+        title='rabbitmq host'
     )
 
-    kafka_port: str = Field(
+    rabbitmq_port: str = Field(
         ...,
-        title='kafka port'
+        title='rabbitmq port'
     )
 
-    kafka_topic: str = Field(
+    rabbitmq_queue: str = Field(
         ...,
-        title='module topic name in kafka'
+        title='module queue name in rabbitmq'
     )
 
 

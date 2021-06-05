@@ -12,7 +12,7 @@ from bo_shared.models.scheduler import (
     CronJobPatch
 )
 
-from config import PYTHONPATH, KAFKA_HOST, KAFKA_PORT
+from config import PYTHONPATH, RABBITMQ_HOST, RABBITMQ_PORT
 
 __all__ = ('CronJob', 'CronJobPost', 'CronJobResponse', 'CronJobPatch')
 
@@ -25,6 +25,6 @@ class CronJob(CronJobShared):
                              f'--host {self.host} '
                              f'--port {self.port} '
                              f'--mode {self.mode} '
-                             f'--kafka-host {KAFKA_HOST} '
-                             f'--kafka-port {KAFKA_PORT}')
+                             f'--rabbitmq-host {RABBITMQ_HOST} '
+                             f'--rabbitmq-port {RABBITMQ_PORT}')
         return self.full_command

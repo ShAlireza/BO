@@ -1,7 +1,7 @@
 import json
 import argparse
 
-from confluent_kafka import Producer
+import pika
 
 # TODO
 #  1. log push errors or success with logger
@@ -59,18 +59,18 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--kafka-host',
-    metavar='kafka_host',
+    '--rabbitmq-host',
+    metavar='rabbitmq_host',
     type=str,
-    help='kafka host',
+    help='rabbitmq host',
     required=True
 )
 
 parser.add_argument(
-    '--kafka-port',
-    metavar='kafka_port',
+    '--rabbitmq-port',
+    metavar='rabbitmq_port',
     type=str,
-    help='kafka port',
+    help='rabbitmq port',
     required=True
 )
 
@@ -87,31 +87,27 @@ if __name__ == '__main__':
 
     print(push_data)
 
-    conf = {'bootstrap.servers': f'{args.kafka_host}:{args.kafka_port}'}
-
-    producer = Producer(**conf)
-
-
-    def push_callback(error, message):
-        if error:
-            raise Exception(error)
-        else:
-            print(f'Messages delivered to {message.topic()}'
-                  f' [{message.partition()}]'
-                  f' @ {message.offset()}')
-
-
-    try:
-        producer.produce(
-            args.tech,
-            json.dumps(push_data).encode('utf-8'),
-            callback=push_callback
+    connection = pika.BlockingConnection(
+        parameters=pika.ConnectionParameters(
+            host=args.rabbitmq_host,
+            port=args.rabbitmq_port
         )
-    except BufferError as e:
-        raise e
+    )
 
-    producer.poll(0)
-    producer.flush()
+    channel = connection.channel()
+    channel.basic_qos(prefetch_count=1)
+
+    channel.basic_publish(
+        exchange='',
+        routing_key=args.tech,
+        body=json.dumps(push_data).encode('utf-8'),
+        properties=pika.BasicProperties(
+            delivery_mode=2  # make message persistent
+        )
+    )
+
+    print(f' [x] Sent message: "{push_data}"')
+    connection.close()
 
 
 def get_parser():

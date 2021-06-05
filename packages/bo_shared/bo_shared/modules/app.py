@@ -59,13 +59,13 @@ class ModuleApp(FastAPI):
         data = response.json()
 
         self.token = data.get('token').get('key')
-        config.KAFKA_HOST = data.get('kafka_host')
-        config.KAFKA_PORT = data.get('kafka_port')
-        config.KAFKA_TOPIC = data.get('kafka_topic')
+        config.RABBITMQ_HOST = data.get('rabbitmq_host')
+        config.RABBITMQ_PORT = data.get('rabbitmq_port')
+        config.RABBITMQ_QUEUE = data.get('rabbitmq_queue')
 
-        assert config.KAFKA_HOST is not None
-        assert config.KAFKA_PORT is not None
-        assert config.KAFKA_TOPIC is not None
+        assert config.RABBITMQ_HOST is not None
+        assert config.RABBITMQ_PORT is not None
+        assert config.RABBITMQ_QUEUE is not None
 
 
 def create_module_app():

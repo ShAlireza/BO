@@ -1,14 +1,18 @@
+from bo_shared.modules.interface import Consumer
 from bo_shared.modules.app import create_module_app
 
+from module import MySqlModule
 
 import config
 
 app = create_module_app()
 
-print(config.KAFKA_HOST, config.KAFKA_PORT, config.KAFKA_TOPIC)
+print('rabbitmq_host, rabbitmq_port, rabbitmq_queue')
+print(config.RABBITMQ_HOST, config.RABBITMQ_PORT, config.RABBITMQ_QUEUE)
 
-from module import MySqlModule
 
-module = MySqlModule()
+consumer = Consumer(
+    module_class=MySqlModule
+)
 
-module()
+consumer()
