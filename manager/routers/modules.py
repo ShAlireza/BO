@@ -172,13 +172,3 @@ async def login(
 @router.put("/{register_name}")
 async def edit():
     pass
-
-
-@router.post("/heartbeat", response_model=ModuleInstanceResponse)
-async def heartbeat(
-        instance: ModuleInstanceDB = Depends(authorize_instance)
-):
-    instance.status = ModuleInstanceDB.UP
-    await instance.save()
-
-    return instance
