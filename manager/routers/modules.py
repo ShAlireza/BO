@@ -3,7 +3,8 @@ from typing import Optional, List
 import aiohttp
 from aiohttp import ContentTypeError
 
-from internal import KafkaHandler, RabbitMQHandler
+from internal import RabbitMQHandler
+from exceptions import InvalidCredentialNames, ServiceInstanceExists
 from config import RABBITMQ_HOST, RABBITMQ_PORT
 
 from fastapi import (
@@ -23,7 +24,9 @@ from data.db import (
     Module as ModuleDB,
     ModuleInstance as ModuleInstanceDB,
     Token as TokenDB,
-    SecretKey as SecretKeyDB
+    SecretKey as SecretKeyDB,
+    ServiceInstanceData as ServiceInstanceDataDB,
+    ServiceInstanceCredential as ServiceInstanceCredentialDB
 )
 from data.pydantic import (
     ModuleInstanceResponse,
@@ -35,7 +38,9 @@ from data.pydantic import (
     SecretKeyResponse,
     ModulePost,
     ServiceInstanceData,
-    ServiceInstanceCredential
+    ServiceInstanceCredential,
+    ServiceInstanceDataPatch,
+    ServiceInstanceDataResponse
 )
 
 __all__ = ('router',)
@@ -56,10 +61,6 @@ async def authorize_instance(
     await token.fetch_related('instance')
 
     return token.instance
-
-
-async def get_kafka_handler():
-    return KafkaHandler()
 
 
 async def get_rabbitmq_handler():
@@ -172,3 +173,181 @@ async def login(
 @router.put("/{register_name}")
 async def edit():
     pass
+
+
+@router.get("/{module_name}",
+            response_model=List[ServiceInstanceDataResponse])
+async def get_service_instance_data(
+        response: Response,
+        module_name: str = Path(
+            ...,
+            title='module name for adding service instance'
+        )
+):
+    module = await ModuleDB.get(
+        name=module_name
+    )
+
+    service_instances = await ServiceInstanceDataDB.filter(
+        module=module
+    ).prefetch_related('credentials')
+
+    responses = await ServiceInstanceDataResponse.service_instance_response_from_db_model_list(
+        service_instances
+    )
+
+    return responses
+
+
+@router.post("/{module_name}", response_model=ServiceInstanceDataResponse)
+async def add_service_instance_data(
+        response: Response,
+        module_name: str = Path(
+            ...,
+            title='module name for adding service instance'
+        ),
+        service_instance: ServiceInstanceData = Body(
+            ...,
+            title='service instance data'
+        )
+):
+    module = await ModuleDB.get(
+        name=module_name
+    )
+
+    exists = await ServiceInstanceDataDB.filter(
+        host=service_instance.host,
+        port=service_instance.port,
+        module=module
+    ).exists()
+
+    if exists:
+        raise ServiceInstanceExists()
+
+    service_instance_data = await ServiceInstanceDataDB.create(
+        host=service_instance.host,
+        port=service_instance.port,
+        module=module
+    )
+
+    invalid_credentials = []
+
+    for credential in service_instance.credentials:
+        if not module.is_credential_valid(credential.name):
+            invalid_credentials.append(credential.name)
+
+    if invalid_credentials:
+        raise InvalidCredentialNames(
+            invalid_credentials=invalid_credentials,
+            valid_credentials=module.valid_credential_names_list
+        )
+
+    for credential in service_instance.credentials:
+        await ServiceInstanceCredentialDB.create(
+            name=credential.name,
+            value=credential.value,
+            service_instance=service_instance_data
+        )
+
+    response_data = service_instance.dict()
+    response_data['id'] = service_instance_data.id
+
+    return response_data
+
+
+@router.patch("/{module_name}/{service_instance_id}",
+              response_model=ServiceInstanceDataResponse)
+async def edit_service_instance_data(
+        response: Response,
+        module_name: str = Path(
+            ...,
+            title='module name for adding service instance'
+        ),
+        service_instance_id: int = Path(
+            ...,
+            title='service instance id',
+            ge=0
+        ),
+        service_instance: ServiceInstanceDataPatch = Body(
+            ...,
+            title='service instance data'
+        )
+):
+    module = await ModuleDB.get(
+        name=module_name
+    )
+
+    service_instance_data = await ServiceInstanceDataDB.get(
+        id=service_instance_id
+    )
+
+    invalid_credentials = []
+
+    for credential in service_instance.credentials:
+        if not module.is_credential_valid(credential.name):
+            invalid_credentials.append(credential.name)
+
+    if invalid_credentials:
+        raise InvalidCredentialNames(
+            invalid_credentials=invalid_credentials,
+            valid_credentials=module.valid_credential_names_list
+        )
+
+    if service_instance.credentials:
+        await ServiceInstanceCredentialDB.filter(
+            service_instance=service_instance_data
+        ).delete()
+        for credential in service_instance.credentials:
+            await ServiceInstanceCredentialDB.create(
+                name=credential.name,
+                value=credential.value,
+                service_instance=service_instance_data
+            )
+
+    update_data = service_instance.dict(exclude_unset=True)
+
+    if 'credentials' in update_data:
+        update_data.pop('credentials')
+
+    await service_instance_data.update_from_dict(
+        data=update_data
+    )
+
+    await service_instance_data.fetch_related('credentials')
+
+    response_data = await ServiceInstanceDataResponse.service_instance_response_from_db_model(
+        service_instance_data
+    )
+
+    return response_data
+
+
+@router.delete("/{module_name}/{service_instance_id}",
+               response_model=ServiceInstanceDataResponse)
+async def delete_service_instance_data(
+        response: Response,
+        module_name: str = Path(
+            ...,
+            title='module name for adding service instance'
+        ),
+        service_instance_id: int = Path(
+            ...,
+            title='service instance id',
+            ge=0
+        )
+):
+    service_instance_data = await ServiceInstanceDataDB.get(
+        id=service_instance_id
+    )
+
+    await service_instance_data.fetch_related('credentials')
+
+    response_data = await ServiceInstanceDataResponse.service_instance_response_from_db_model(
+        service_instance_data
+    )
+
+    await ServiceInstanceDataDB.filter(
+        id=service_instance_id
+    ).delete()
+
+    return response_data

@@ -3,5 +3,7 @@ from .models import (
     Module,
     ModuleInstance,
     Token,
-    SecretKey
+    SecretKey,
+    ServiceInstanceData,
+    ServiceInstanceCredential
 )

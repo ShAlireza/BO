@@ -10,12 +10,15 @@ from bo_shared.models.manager import (
     SecretKeyResponse,
     ModulePost,
     ServiceInstanceData,
-    ServiceInstanceCredential
+    ServiceInstanceCredential,
+    ServiceInstanceDataPatch,
+    ServiceInstanceDataResponse
 )
 
 __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
     'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
     'SecretKey', 'SecretKeyResponse', 'ModulePost', 'ServiceInstanceData',
-    'ServiceInstanceCredential'
+    'ServiceInstanceCredential', 'ServiceInstanceDataPatch',
+    'ServiceInstanceDataResponse'
 )

@@ -10,7 +10,7 @@ from tortoise.exceptions import ValidationError
 from config import TOKEN_EXPIRE_TIME
 
 __all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token',
-           'SecretKey')
+           'SecretKey', 'ServiceInstanceData', 'ServiceInstanceCredential')
 
 
 # Todo
@@ -92,6 +92,9 @@ class Module(Model):
         import re
 
         return re.split('\\s*,\\s*', self.valid_credential_names)
+    
+    def is_credential_valid(self, credential_name):
+        return credential_name in self.valid_credential_names_list
 
 
 class ModuleInstance(Model):

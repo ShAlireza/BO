@@ -10,5 +10,7 @@ from .models import (
     SecretKeyResponse,
     ModulePost,
     ServiceInstanceData,
-    ServiceInstanceCredential
+    ServiceInstanceCredential,
+    ServiceInstanceDataPatch,
+    ServiceInstanceDataResponse
 )

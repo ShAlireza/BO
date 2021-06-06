@@ -7,7 +7,8 @@ __all__ = (
     'ModuleInstanceBase', 'ModuleBase', 'ModuleResponse', 'Token',
     'ModuleInstanceResponse', 'ModuleInstancePost', 'LoginResponse',
     'SecretKey', 'SecretKeyResponse', 'ModulePost', 'ServiceInstanceData',
-    'ServiceInstanceCredential'
+    'ServiceInstanceCredential', 'ServiceInstanceDataPatch',
+    'ServiceInstanceDataResponse'
 )
 
 
@@ -198,5 +199,57 @@ class ServiceInstanceData(BaseModel):
 
     credentials: List[ServiceInstanceCredential] = Field(
         ...,
+        title='credential list of this service instance'
+    )
 
+    class Config:
+        orm_mode = True
+
+
+class ServiceInstanceDataResponse(ServiceInstanceData):
+    id: int = Field(
+        ...,
+        title='service instance db id',
+        ge=0
+    )
+
+    @classmethod
+    async def service_instance_response_from_db_model(cls, db_model):
+        return cls(
+            id=db_model.id,
+            host=db_model.host,
+            credentials=await db_model.credentials.all(),
+            port=db_model.port
+        )
+
+    @classmethod
+    async def service_instance_response_from_db_model_list(cls, db_models):
+        responses = []
+
+        for db_model in db_models:
+            responses.append(
+                await cls.service_instance_response_from_db_model(db_model)
+            )
+        return responses
+
+    class Config:
+        orm_mode = True
+
+
+class ServiceInstanceDataPatch(BaseModel):
+    host: Optional[str] = Field(
+        None,
+        title='Instance host ip or domain',
+        max_length=256
+    )
+
+    port: Optional[int] = Field(
+        None,
+        title='Instance port',
+        ge=0
+    )
+
+    credentials: Optional[List[ServiceInstanceCredential]] = Field(
+        [],
+        title='credential list of this service instance'
     )
