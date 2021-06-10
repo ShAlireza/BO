@@ -89,11 +89,10 @@ def create_module_app():
 
     try:
         subprocess.Popen(
-            ['./mc', '--help'],
+            [config.MINIO_CLIENT, '--help'],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
-        config.MINIO_CLIENT = './mc'
     except FileNotFoundError:
         try:
             subprocess.Popen(
