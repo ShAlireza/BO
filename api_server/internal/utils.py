@@ -53,7 +53,7 @@ async def request(
             response_cookies = aio_response.cookies
 
     if response:
-        response.status = status_code
+        response.status_code = status_code
         # May be set headers, cookies, etc. in future
 
     return data, status_code, response_headers, response_cookies
