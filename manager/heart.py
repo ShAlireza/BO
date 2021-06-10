@@ -19,12 +19,12 @@ OUTPUT_FILENAME = 'heart.log'
 
 async def beat():
     instances = await ModuleInstance.all()
-
     async with aiohttp.ClientSession() as session:
         for instance in instances:
             try:
                 async with session.get(
-                        url=f'http://{instance.host}:{instance.port}/heart') as response:
+                        url=f'http://{instance.host}:{instance.port}/heart'
+                ) as response:
                     output = open(OUTPUT_FILENAME, 'a')
                     output.write(
                         f'Response: text={await response.text()}, status={response.status}\n')
@@ -35,6 +35,10 @@ async def beat():
                     else:
                         instance.state = instance.DOWN
             except ClientConnectionError as e:
+                output = open(OUTPUT_FILENAME, 'a')
+                output.write(str(e))
+                output.flush()
+                output.close()
                 instance.state = instance.DOWN
             await instance.save()
 

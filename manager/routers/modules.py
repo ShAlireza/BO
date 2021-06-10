@@ -5,7 +5,13 @@ from aiohttp import ContentTypeError
 
 from internal import RabbitMQHandler
 from exceptions import InvalidCredentialNames, ServiceInstanceExists
-from config import RABBITMQ_HOST, RABBITMQ_PORT
+from config import (
+    RABBITMQ_HOST,
+    RABBITMQ_PORT,
+    MINIO_ADDRESS,
+    MINIO_ACCESS_KEY,
+    MINIO_SECRET_KEY
+)
 
 from fastapi import (
     APIRouter,
@@ -166,18 +172,16 @@ async def login(
         token=token,
         rabbitmq_host=RABBITMQ_HOST,
         rabbitmq_port=RABBITMQ_PORT,
-        rabbitmq_queue=module.name
+        rabbitmq_queue=module.name,
+        minio_address=MINIO_ADDRESS,
+        minio_access_key=MINIO_ACCESS_KEY,
+        minio_secret_key=MINIO_SECRET_KEY
     )
-
-
-@router.put("/{register_name}")
-async def edit():
-    pass
 
 
 @router.get("/{module_name}",
             response_model=List[ServiceInstanceDataResponse])
-async def get_service_instance_data(
+async def get_service_instances_data(
         response: Response,
         module_name: str = Path(
             ...,
@@ -197,6 +201,73 @@ async def get_service_instance_data(
     )
 
     return responses
+
+
+@router.post("/{module_name}/detail",
+             response_model=ServiceInstanceDataResponse)
+async def get_service_instance_data(
+        module_name: str = Path(
+            ...,
+            title='module name'
+        ),
+        host: str = Body(
+            ...,
+            title='service instance host ip'
+        ),
+        port: int = Body(
+            ...,
+            title='service instance port'
+        )
+):
+    module = await ModuleDB.get(
+        name=module_name
+    )
+
+    service_instance_data = await ServiceInstanceDataDB.get(
+        module=module,
+        host=host,
+        port=port
+    )
+
+    await service_instance_data.fetch_related('credentials')
+
+    response_data = await ServiceInstanceDataResponse.service_instance_response_from_db_model(
+        service_instance_data
+    )
+
+    return response_data
+
+
+@router.post("/{module_name}/exists")
+async def service_exists(
+        response: Response,
+        module_name: str = Path(
+            ...,
+            title='module name'
+        ),
+        host: str = Body(
+            ...
+        ),
+        port: int = Body(
+            ...
+        )
+):
+    module = await ModuleDB.get(
+        name=module_name
+    )
+
+    instance_exists = await ServiceInstanceDataDB.filter(
+        module=module,
+        host=host,
+        port=port
+    ).exists()
+
+    print(instance_exists, module, host, port)
+
+    if instance_exists:
+        response.status_code = status.HTTP_200_OK
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
 
 
 @router.post("/{module_name}", response_model=ServiceInstanceDataResponse)

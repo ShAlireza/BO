@@ -11,6 +11,10 @@ KAFKA_PORT = os.getenv('KAFKA_PORT')
 
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
 RABBITMQ_PORT = os.getenv('RABBITMQ_PORT')
+MINIO_ADDRESS = os.getenv('MINIO_ADDRESS')
+MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
+MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
+
 
 TORTOISE_ORM = {
     "connections": {"default": DATABASE_URL},
