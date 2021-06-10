@@ -74,6 +74,14 @@ parser.add_argument(
     required=True
 )
 
+parser.add_argument(
+    '--label',
+    metavar='label',
+    type=str,
+    help='custom label',
+    required=True
+)
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -82,7 +90,8 @@ if __name__ == '__main__':
         'tech': args.tech,
         'mode': args.mode,
         'host': args.host,
-        'port': args.port
+        'port': args.port,
+        'label': args.label
     }
 
     print(push_data)

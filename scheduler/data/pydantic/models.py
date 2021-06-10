@@ -26,5 +26,6 @@ class CronJob(CronJobShared):
                              f'--port {self.port} '
                              f'--mode {self.mode} '
                              f'--rabbitmq-host {RABBITMQ_HOST} '
-                             f'--rabbitmq-port {RABBITMQ_PORT}')
+                             f'--rabbitmq-port {RABBITMQ_PORT} '
+                             f'--label {self.label} ')
         return self.full_command
