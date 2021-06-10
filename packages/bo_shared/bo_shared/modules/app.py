@@ -1,4 +1,5 @@
 import requests
+import subprocess
 
 from fastapi import FastAPI
 
@@ -12,6 +13,14 @@ class ManagerConfigFileNotFound(ModuleException):
 
 
 class LoginFailed(ModuleException):
+    pass
+
+
+class MinioClientNotFound(ModuleException):
+    pass
+
+
+class MinioSetStorageFailed(ModuleException):
     pass
 
 
@@ -62,15 +71,49 @@ class ModuleApp(FastAPI):
         config.RABBITMQ_HOST = data.get('rabbitmq_host')
         config.RABBITMQ_PORT = data.get('rabbitmq_port')
         config.RABBITMQ_QUEUE = data.get('rabbitmq_queue')
+        config.MINIO_ADDRESS = data.get('minio_address')
+        config.MINIO_ACCESS_KEY = data.get('minio_access_key')
+        config.MINIO_SECRET_KEY = data.get('minio_secret_key')
 
         assert config.RABBITMQ_HOST is not None
         assert config.RABBITMQ_PORT is not None
         assert config.RABBITMQ_QUEUE is not None
+        assert config.MINIO_ADDRESS is not None
+        assert config.MINIO_ACCESS_KEY is not None
+        assert config.MINIO_SECRET_KEY is not None
 
 
 def create_module_app():
     app = ModuleApp()
     app.login()
+
+    try:
+        subprocess.Popen(
+            ['./mc', '--help'],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        config.MINIO_CLIENT = './mc'
+    except FileNotFoundError:
+        try:
+            subprocess.Popen(
+                ['mc', '--help'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            config.MINIO_CLIENT = 'mc'
+        except FileNotFoundError:
+            raise MinioClientNotFound('minio client not found.')
+
+    process = subprocess.run(
+        [config.MINIO_CLIENT, 'alias', 'set', 'storage',
+         f'http://{config.MINIO_ADDRESS}',
+         f'{config.MINIO_ACCESS_KEY}',
+         f'{config.MINIO_SECRET_KEY}']
+    )
+
+    if process.returncode != 0:
+        raise MinioSetStorageFailed('failed to set set cloud storage.')
 
     @app.get("/heart")
     def heart():

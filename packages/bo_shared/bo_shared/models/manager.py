@@ -169,6 +169,21 @@ class LoginResponse(BaseModel):
         title='module queue name in rabbitmq'
     )
 
+    minio_address: str = Field(
+        ...,
+        title='minio address'
+    )
+
+    minio_access_key: str = Field(
+        ...,
+        title='minio access key'
+    )
+
+    minio_secret_key: str = Field(
+        ...,
+        title='minio secret key'
+    )
+
 
 class ServiceInstanceCredential(BaseModel):
     name: str = Field(
