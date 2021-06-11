@@ -1,9 +1,4 @@
-import uuid
-from datetime import datetime
-from typing import List, Optional, Union, Any
-from uuid import UUID
-
-from pydantic import BaseModel, Field, validator, ValidationError
+import sys
 
 from bo_shared.models.scheduler import (
     CronJob as CronJobShared,
@@ -19,7 +14,8 @@ __all__ = ('CronJob', 'CronJobPost', 'CronJobResponse', 'CronJobPatch')
 
 class CronJob(CronJobShared):
     def generate_full_command(self):
-        self.full_command = (f'python {PYTHONPATH}/internal/event_push.py '
+        self.full_command = (f'{sys.executable} '
+                             f'{PYTHONPATH}/internal/event_push.py '
                              f'--id {self.id} '
                              f'--tech {self.technology} '
                              f'--host {self.host} '
