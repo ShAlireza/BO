@@ -4,6 +4,11 @@ import subprocess
 from fastapi import FastAPI
 
 
+# Todo
+#  1. use logger for instance joining cluster
+#  2. ...
+
+
 class ModuleException(Exception):
     pass
 
@@ -82,37 +87,40 @@ class ModuleApp(FastAPI):
         assert config.MINIO_ACCESS_KEY is not None
         assert config.MINIO_SECRET_KEY is not None
 
-
-def create_module_app():
-    app = ModuleApp()
-    app.login()
-
-    try:
-        subprocess.Popen(
-            [config.MINIO_CLIENT, '--help'],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-    except FileNotFoundError:
+    def init_minio(self):
         try:
             subprocess.Popen(
-                ['mc', '--help'],
+                [config.MINIO_CLIENT, '--help'],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
-            config.MINIO_CLIENT = 'mc'
         except FileNotFoundError:
-            raise MinioClientNotFound('minio client not found.')
+            try:
+                subprocess.Popen(
+                    ['mc', '--help'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                config.MINIO_CLIENT = 'mc'
+            except FileNotFoundError:
+                raise MinioClientNotFound('minio client not found.')
 
-    process = subprocess.run(
-        [config.MINIO_CLIENT, 'alias', 'set', 'storage',
-         f'http://{config.MINIO_ADDRESS}',
-         f'{config.MINIO_ACCESS_KEY}',
-         f'{config.MINIO_SECRET_KEY}']
-    )
+        process = subprocess.run(
+            [config.MINIO_CLIENT, 'alias', 'set', 'storage',
+             f'http://{config.MINIO_ADDRESS}',
+             f'{config.MINIO_ACCESS_KEY}',
+             f'{config.MINIO_SECRET_KEY}']
+        )
 
-    if process.returncode != 0:
-        raise MinioSetStorageFailed('failed to set set cloud storage.')
+        if process.returncode != 0:
+            raise MinioSetStorageFailed('failed to set set cloud storage.')
+
+
+def create_module_app():
+    app = ModuleApp()
+
+    app.login()
+    app.init_minio()
 
     @app.get("/heart")
     def heart():
