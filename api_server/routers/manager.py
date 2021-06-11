@@ -110,7 +110,7 @@ async def delete_secret_key(
 
 @router.get(
     "/{module_name}",
-    response_model=Dict[List[ServiceInstanceDataResponse], Dict[str, str]]
+    response_model=Union[List[ServiceInstanceDataResponse], Dict[str, str]]
 )
 async def get_service_instances_data(
         response: Response,
