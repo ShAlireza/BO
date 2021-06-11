@@ -29,15 +29,26 @@ class MySqlModule(BaseModule):
         )
 
         filename = f'{path}/{label}-{module}-{datetime.now().isoformat()}'
-        return_code = os.system(
-            f'mysqldump -h {host} -P {port} --protocol=tcp -u {username} '
-            f'-p{password} --all-databases | {MINIO_CLIENT} pipe {filename}'
+        mysql = subprocess.Popen(
+            ['mysqldump', '-h', f'{host}', '-P', f'{port}', '--protocol=tcp',
+             '-u',
+             f'{username}', f'-p{password}', '--all-databases'],
+
+            stdout=subprocess.PIPE
         )
 
+        minio = subprocess.Popen(
+            [MINIO_CLIENT, 'pipe', f'{filename}'],
+            stdin=mysql.stdout,
+            universal_newlines=True,
+        )
+        stdout, stderr = minio.communicate()
+
+        return_code = minio.poll()
         if return_code != 0:
-            print(f'backup failed with return code: {return_code}')
+            print(stdout, stderr)
         else:
-            print(f'backup {module} successful: {host}:{port}')
+            print(f'backup {module} successfully completed: {host}:{port}')
 
     def validate(self):
         pass
