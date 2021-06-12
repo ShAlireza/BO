@@ -79,11 +79,6 @@ class CronJobBase(BaseModel):
         regex=CRON_TIME_REGEX
     )
 
-    label: Optional[str] = Field(
-        None,
-        title='Custom optional label for job'
-    )
-
     @validator('mode', pre=True, always=True)
     def validate_mode(cls: 'CronJob', value: Any) -> 'CronJob':
         print(value)
@@ -102,6 +97,11 @@ class CronJob(CronJobBase):
     id: str = Field(
         title="Cron job unique id",
         default_factory=lambda: str(uuid.uuid4())
+    )
+
+    namespace: str = Field(
+        ...,
+        title='namespace for job'
     )
 
     full_command: str = Field(
@@ -131,6 +131,11 @@ class CronJobResponse(CronJobBase):
     id: str = Field(
         ...,
         title='Cron job unique id'
+    )
+
+    namespace: str = Field(
+        ...,
+        title='namespace for job'
     )
 
     created_at: datetime = Field(

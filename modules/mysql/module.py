@@ -20,15 +20,10 @@ class MySqlModule(BaseModule):
         port = self.flat_data.get('port')
         username = self.flat_data.get('username')
         password = self.flat_data.get('password')
-        label = self.flat_data.get('label')
+        namespace = self.flat_data.get('namespace')
         module = self.flat_data.get('module')
 
-        path = self.create_necessary_bucket_minio(
-            label=label,
-            module=module
-        )
-
-        filename = f'{path}/{label}-{module}-{datetime.now().isoformat()}'
+        filename = f'{self.backup_path}/{namespace}-{module}-{datetime.now().isoformat()}'
         mysql = subprocess.Popen(
             ['mysqldump', '-h', f'{host}', '-P', f'{port}', '--protocol=tcp',
              '-u',

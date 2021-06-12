@@ -21,6 +21,7 @@ class BaseModule(abc.ABC):
     def __init__(self):
         self.raw_data = {}
         self.flat_data = {}
+        self.backup_path = None
 
     def __call__(self, data):
         self.raw_data = self._get_raw_data_from_manager(data)
@@ -31,6 +32,10 @@ class BaseModule(abc.ABC):
         mode = self.raw_data.get('mode')
 
         if mode == 'backup':
+            self.backup_path = self.create_necessary_bucket_minio(
+                namespace=self.flat_data.get('namespace'),
+                module=self.flat_data.get('module')
+            )
             self.backup()
         elif mode == 'validate':
             self.validate()
@@ -48,12 +53,12 @@ class BaseModule(abc.ABC):
     def validate(self):
         raise NotImplementedError
 
-    def create_necessary_bucket_minio(self, label, module):
+    def create_necessary_bucket_minio(self, namespace, module):
         process = subprocess.run(
-            [MINIO_CLIENT, 'mb', f'storage/backups/{label}/{module}']
+            [MINIO_CLIENT, 'mb', f'storage/backups/{namespace}/{module}']
         )
 
-        return f'storage/backups/{label}/{module}' if process.returncode == 0 \
+        return f'storage/backups/{namespace}/{module}' if process.returncode == 0 \
             else None
 
     def _get_raw_data_from_manager(self, data):
@@ -79,7 +84,7 @@ class BaseModule(abc.ABC):
         raw_data['mode'] = data.get('mode')
         raw_data['tech'] = module_name
         raw_data['module'] = module_name
-        raw_data['label'] = data.get('label')
+        raw_data['namespace'] = data.get('namespace')
 
         return raw_data
 
