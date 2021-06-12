@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "cronjobmodel" (
     "day_of_week" VARCHAR(16) NOT NULL  DEFAULT '*',
     "created_at" TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    "label" VARCHAR(128),
+    "namespace" VARCHAR(128),
     "full_command" VARCHAR(512)
 );
 CREATE TABLE IF NOT EXISTS "aerich" (

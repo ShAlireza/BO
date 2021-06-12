@@ -22,8 +22,8 @@ class CronJobModel(Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    label = fields.CharField(max_length=128, null=True)
+    namespace = fields.CharField(max_length=128, null=True)
     full_command = fields.CharField(max_length=512, null=True)
 
     def __str__(self):
-        return f'{self.technology}, {self.host}, {self.label}'
+        return f'{self.technology}, {self.host}, {self.namespace}'
