@@ -1,15 +1,15 @@
 from uuid import uuid4
-import secrets
-import string
 
 from tortoise.models import Model
 from tortoise import fields
 from tortoise.validators import Validator
 from tortoise.exceptions import ValidationError
 
+from bo_shared.utils import generate_token_key, generate_secret_key
+
 from config import TOKEN_EXPIRE_TIME
 
-__all__ = ('generate_secret_key', 'Module', 'ModuleInstance', 'Token',
+__all__ = ('Module', 'ModuleInstance', 'Token',
            'SecretKey', 'ServiceInstanceData', 'ServiceInstanceCredential')
 
 
@@ -31,17 +31,6 @@ class NoneNegativeValidator(Validator):
             raise ValidationError("Value must not be None")
         if value < 0:
             raise ValidationError(f"Value '{value}' must be non-negative")
-
-
-def generate_secret_key(length=64):
-    chars = string.ascii_letters + string.digits + "@$#!.<=>+-_?*%"
-    key = ''.join(secrets.choice(chars) for _ in range(length))
-
-    return key
-
-
-def generate_token_key(length=64):
-    return secrets.token_hex(length)
 
 
 class SecretKey(Model):
@@ -92,7 +81,7 @@ class Module(Model):
         import re
 
         return re.split('\\s*,\\s*', self.valid_credential_names)
-    
+
     def is_credential_valid(self, credential_name):
         return credential_name in self.valid_credential_names_list
 
