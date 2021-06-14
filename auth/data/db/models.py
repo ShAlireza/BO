@@ -5,12 +5,17 @@ from tortoise import fields
 
 from bo_shared.utils import generate_token_key
 
+__all__ = ('NameSpace', 'Token')
+
 
 class NameSpace(Model):
     name = fields.CharField(
         max_length=256,
         unique=True
     )
+
+    class Meta:
+        table = 'auth.namespace'
 
 
 class Token(Model):
@@ -19,7 +24,7 @@ class Token(Model):
         default=lambda: generate_token_key(32)
     )
 
-    namespaces = fields.ManyToManyField(
+    namespaces = fields.ForeignKeyField(
         'auth.NameSpace',
         related_name='tokens',
         on_delete=fields.CASCADE
@@ -28,3 +33,6 @@ class Token(Model):
     valid = fields.BooleanField(
         default=True
     )
+
+    class Meta:
+        table = 'auth.token'

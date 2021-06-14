@@ -44,6 +44,9 @@ class SecretKey(Model):
         default=True
     )
 
+    class Meta:
+        table = 'manager.secretkey'
+
 
 class Module(Model):
     id = fields.CharField(
@@ -69,6 +72,9 @@ class Module(Model):
         description='a comma separated set of values that are valid for this '
                     'service credentials names'
     )
+
+    class Meta:
+        table = 'manager.module'
 
     @classmethod
     async def is_unique(cls, name):
@@ -117,6 +123,9 @@ class ModuleInstance(Model):
         auto_now=True
     )
 
+    class Meta:
+        table = 'manager.moduleinstance'
+
 
 class ServiceInstanceData(Model):
     host = fields.CharField(
@@ -133,6 +142,9 @@ class ServiceInstanceData(Model):
         on_delete=fields.CASCADE
     )
 
+    class Meta:
+        table = 'manager.serviceinstancedata'
+
 
 class ServiceInstanceCredential(Model):
     name = fields.CharField(
@@ -148,6 +160,9 @@ class ServiceInstanceCredential(Model):
         related_name='credentials',
         on_delete=fields.CASCADE
     )
+
+    class Meta:
+        table = 'manager.serviceinstancecredential'
 
 
 class Token(Model):
@@ -172,6 +187,9 @@ class Token(Model):
     expired = fields.BooleanField(
         default=False
     )
+
+    class Meta:
+        table = 'manager.token'
 
     @property
     def is_valid(self):

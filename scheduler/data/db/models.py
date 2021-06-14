@@ -27,3 +27,6 @@ class CronJobModel(Model):
 
     def __str__(self):
         return f'{self.technology}, {self.host}, {self.namespace}'
+
+    class Meta:
+        table = 'scheduler.cronjob'
