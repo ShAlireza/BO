@@ -10,7 +10,7 @@ app = FastAPI()
 register_tortoise(
     app=app,
     db_url=DATABASE_URL,
-    modules={'auth': ["data.db.models"]},
+    modules={'namespace': ["data.db.models"]},
     generate_schemas=False,
     add_exception_handlers=True
 )

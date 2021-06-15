@@ -8,7 +8,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 TORTOISE_ORM = {
     "connections": {"default": DATABASE_URL},
     "apps": {
-        "auth": {
+        "namespace": {
             "models": ["data.db.models", 'aerich.models'],
             "default_connection": "default",
         }

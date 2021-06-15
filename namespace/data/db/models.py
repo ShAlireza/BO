@@ -15,7 +15,7 @@ class NameSpace(Model):
     )
 
     class Meta:
-        table = 'auth.namespace'
+        table = 'namespace.namespace'
 
 
 class Token(Model):
@@ -24,8 +24,8 @@ class Token(Model):
         default=lambda: generate_token_key(32)
     )
 
-    namespaces = fields.ForeignKeyField(
-        'auth.NameSpace',
+    namespace = fields.ForeignKeyField(
+        'namespace.NameSpace',
         related_name='tokens',
         on_delete=fields.CASCADE
     )
@@ -35,4 +35,4 @@ class Token(Model):
     )
 
     class Meta:
-        table = 'auth.token'
+        table = 'namespace.token'
