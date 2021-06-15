@@ -11,10 +11,11 @@ from data.pydantic import (
     NameSpaceAdminResponse,
     NameSpacePost,
     TokenResponse,
-    NameSpaceResponse
+    NameSpaceResponse,
+    NameSpacePatch
 )
 
-from exceptions import NameSpaceExists
+from exceptions import NameSpaceExists, TokenNotValid
 
 router = APIRouter()
 
@@ -27,11 +28,13 @@ async def get_namespace(
             max_length=64
         )
 ):
-    token = await TokenDB.get(
-        key=token_key
-    )
+    token = await TokenDB.filter(
+        key=token_key,
+        valid=True
+    ).prefetch_related('namespace').first()
 
-    await token.fetch_related('namespace')
+    if not token:
+        raise TokenNotValid()
 
     return token.namespace
 
@@ -88,9 +91,25 @@ async def delete_namespace(
     return namespace
 
 
-@router.patch('/namespace/{namespace_name}')
-async def edit_namespace():
-    pass
+@router.patch('/namespace/{namespace_name}', response_model=NameSpaceResponse)
+async def edit_namespace(
+        namespace_name: str = Path(
+            ...,
+            title='namespace name',
+            max_length=256
+        ),
+        namespace: NameSpacePatch = Body(
+            ...,
+            title='namespace name'
+        )
+):
+    namespace_ = await NameSpaceDB.get(
+        name=namespace_name
+    )
+    namespace_.name = namespace.name
+    await namespace_.save()
+
+    return namespace_
 
 
 @router.post('/token', response_model=TokenResponse)
@@ -126,6 +145,7 @@ async def toggle_token_validity(
     )
     token.valid = not token.valid
     await token.save()
+    await token.fetch_related('namespace')
 
     return token
 
@@ -141,6 +161,8 @@ async def delete_token(
     token = await TokenDB.get(
         key=token_key
     )
+
+    await token.fetch_related('namespace')
 
     await TokenDB.filter(
         key=token_key

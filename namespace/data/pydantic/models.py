@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 __all__ = ('TokenResponse', 'NameSpaceAdminResponse', 'NameSpacePost',
-           'NameSpaceResponse')
+           'NameSpaceResponse', 'NameSpacePatch')
 
 
 class TokenBase(BaseModel):
@@ -43,6 +43,10 @@ class TokenResponse(TokenBase):
 
 
 class NameSpacePost(NameSpaceBase):
+    pass
+
+
+class NameSpacePatch(NameSpaceBase):
     pass
 
 
