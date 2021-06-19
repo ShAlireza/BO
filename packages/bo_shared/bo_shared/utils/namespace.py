@@ -11,7 +11,9 @@ async def get_namespace(
         token: str
 ):
     async with aiohttp.ClientSession() as session:
-        async with session.get(namespace_server_url) as response:
+        async with session.get(namespace_server_url.format(
+                token_key=token
+        )) as response:
             json = await response.json()
             return json.get('name')
 

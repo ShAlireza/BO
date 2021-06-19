@@ -17,6 +17,6 @@ register_tortoise(
 
 app.include_router(
     auth_router,
-    prefix='/api/auth',
+    prefix='/api/namespace',
     tags=['Auth']
 )

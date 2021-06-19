@@ -31,7 +31,7 @@ async def get_namespace(
             max_length=64
         )
 ):
-    url = f'{NAMESPACE_HOST}/api/token/{token_key}'
+    url = f'{NAMESPACE_HOST}/api/namespace/token/{token_key}'
 
     data, _, _, _ = await request(
         method='get',
@@ -42,7 +42,7 @@ async def get_namespace(
     return data
 
 
-@router.get('/namespace',
+@router.get('/',
             response_model=Union[List[NameSpaceResponse], Dict[str, str]])
 async def get_namespaces(
         response: Response
@@ -58,7 +58,7 @@ async def get_namespaces(
     return data
 
 
-@router.post('/namespace',
+@router.post('/',
              response_model=Union[NameSpaceResponse, Dict[str, str]])
 async def create_namespace(
         response: Response,
@@ -79,7 +79,7 @@ async def create_namespace(
     return data
 
 
-@router.patch('/namespace/{namespace_name}',
+@router.patch('/{namespace_name}',
               response_model=Union[NameSpaceResponse, Dict[str, str]])
 async def edit_namespace(
         response: Response,
@@ -116,7 +116,7 @@ async def create_token(
             embed=True
         )
 ):
-    url = f'{NAMESPACE_HOST}/api/token'
+    url = f'{NAMESPACE_HOST}/api/namespace/token'
 
     data, _, _, _ = await request(
         method='post',
@@ -140,7 +140,7 @@ async def toggle_token_validity(
             max_length=64
         )
 ):
-    url = f'{NAMESPACE_HOST}/api/token/{token_key}'
+    url = f'{NAMESPACE_HOST}/api/namespace/token/{token_key}'
 
     data, _, _, _ = await request(
         method='patch',
@@ -161,7 +161,7 @@ async def delete_token(
             max_length=64
         )
 ):
-    url = f'{NAMESPACE_HOST}/api/token/{token_key}'
+    url = f'{NAMESPACE_HOST}/api/namespace/token/{token_key}'
 
     data, _, _, _ = await request(
         method='delete',

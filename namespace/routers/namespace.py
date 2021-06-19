@@ -39,7 +39,7 @@ async def get_namespace(
     return token.namespace
 
 
-@router.get('/namespace', response_model=List[NameSpaceAdminResponse])
+@router.get('/', response_model=List[NameSpaceAdminResponse])
 async def get_namespaces():
     namespaces = await NameSpaceDB.all().prefetch_related(
         'tokens'
@@ -52,7 +52,7 @@ async def get_namespaces():
     return responses
 
 
-@router.post('/namespace', response_model=NameSpaceResponse)
+@router.post('/', response_model=NameSpaceResponse)
 async def create_namespace(
         namespace: NameSpacePost = Body(
             ...,
@@ -72,7 +72,7 @@ async def create_namespace(
     return namespace
 
 
-@router.delete('/namespace/{namespace_name}', response_model=NameSpaceResponse)
+@router.delete('/{namespace_name}', response_model=NameSpaceResponse)
 async def delete_namespace(
         namespace_name: str = Path(
             ...,
@@ -91,7 +91,7 @@ async def delete_namespace(
     return namespace
 
 
-@router.patch('/namespace/{namespace_name}', response_model=NameSpaceResponse)
+@router.patch('/{namespace_name}', response_model=NameSpaceResponse)
 async def edit_namespace(
         namespace_name: str = Path(
             ...,

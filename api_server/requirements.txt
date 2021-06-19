@@ -8,3 +8,5 @@ async-generator==1.10
 aiofiles==0.7.0
 itsdangerous==2.0.1
 aiohttp==3.7.4.post0
+asyncpg==0.23.0
+requests==2.25.1

@@ -75,10 +75,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--label',
-    metavar='label',
+    '--namespace',
+    metavar='namespace',
     type=str,
-    help='custom label',
+    help='job namespace',
     required=True
 )
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         'mode': args.mode,
         'host': args.host,
         'port': args.port,
-        'label': args.label
+        'namespace': args.namespace
     }
 
     print(push_data)

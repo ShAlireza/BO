@@ -9,6 +9,7 @@ from bo_shared.models.scheduler import (
     CronJobPatch,
     CronJobPost
 )
+from bo_shared.utils.namespace import namespace_token_header
 
 from internal.utils import request
 from exceptions import ServiceInstanceNotFound
@@ -25,6 +26,7 @@ __all__ = ('router',)
 )
 async def add_job(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         job: CronJobPost = Body(
             ...,
             title='Job to be added to scheduling service'
@@ -38,17 +40,24 @@ async def add_job(
         json={
             'host': job.host,
             'port': job.port
+        },
+        headers={
+            'namespace-token': namespace_token
         }
     )
     if status_code == status.HTTP_404_NOT_FOUND:
         raise ServiceInstanceNotFound()
     print(status_code)
 
+    print(job.dict(), '<==============================')
     data, _, _, _ = await request(
         method='post',
         url=url,
         json=job.dict(exclude_unset=True),
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
@@ -60,14 +69,16 @@ async def add_job(
 )
 async def get_jobs(
         response: Response,
-        label: Optional[str] = Query(..., title='custom label if provided')
+        namespace_token: str = Depends(namespace_token_header),
 ):
     url = f'{SCHEDULER_HOST}/api/cron'
     data, _, _, _ = await request(
         method='get',
         url=url,
-        params={'label': label},
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
     return data
 
@@ -78,13 +89,17 @@ async def get_jobs(
 )
 async def get_job(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         job_id: str = Path(..., title='Job id to retrieve')
 ):
     url = f'{SCHEDULER_HOST}/api/cron/{job_id}'
     data, _, _, _ = await request(
         method='get',
         url=url,
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
@@ -96,6 +111,7 @@ async def get_job(
 )
 async def edit_job(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         job_id: str = Path(..., title='Job id to edit'),
         job: CronJobPatch = Body(..., title='Fields to update')
 ):
@@ -104,7 +120,10 @@ async def edit_job(
         method='patch',
         url=url,
         json=job.dict(exclude_unset=True),
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
@@ -116,13 +135,17 @@ async def edit_job(
 )
 async def delete_job(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         job_id: str = Path(..., title='Job id to delete')
 ):
     url = f'{SCHEDULER_HOST}/api/cron/{job_id}'
     data, _, _, _ = await request(
         method='delete',
         url=url,
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
