@@ -22,7 +22,7 @@ __all__ = ('router',)
 
 
 @router.get('/token/{token_key}',
-            response_model=Union[NameSpaceResponse, Dict[str, str]])
+            response_model=Union[NameSpaceResponse, Dict])
 async def get_namespace(
         response: Response,
         token_key: str = Path(
@@ -43,7 +43,7 @@ async def get_namespace(
 
 
 @router.get('/',
-            response_model=Union[List[NameSpaceResponse], Dict[str, str]])
+            response_model=Union[List[NameSpaceResponse], Dict])
 async def get_namespaces(
         response: Response
 ):
@@ -59,7 +59,7 @@ async def get_namespaces(
 
 
 @router.post('/',
-             response_model=Union[NameSpaceResponse, Dict[str, str]])
+             response_model=Union[NameSpaceResponse, Dict])
 async def create_namespace(
         response: Response,
         namespace: NameSpacePost = Body(
@@ -80,7 +80,7 @@ async def create_namespace(
 
 
 @router.patch('/{namespace_name}',
-              response_model=Union[NameSpaceResponse, Dict[str, str]])
+              response_model=Union[NameSpaceResponse, Dict])
 async def edit_namespace(
         response: Response,
         namespace_name: str = Path(
@@ -106,7 +106,7 @@ async def edit_namespace(
 
 
 @router.post('/token',
-             response_model=Union[TokenResponse, Dict[str, str]])
+             response_model=Union[TokenResponse, Dict])
 async def create_token(
         response: Response,
         namespace_name: str = Body(
@@ -131,7 +131,7 @@ async def create_token(
 
 
 @router.patch('/token/{token_key}',
-              response_model=Union[TokenResponse, Dict[str, str]])
+              response_model=Union[TokenResponse, Dict])
 async def toggle_token_validity(
         response: Response,
         token_key: str = Path(
@@ -152,7 +152,7 @@ async def toggle_token_validity(
 
 
 @router.delete('/token/{token_key}',
-               response_model=Union[TokenResponse, Dict[str, str]])
+               response_model=Union[TokenResponse, Dict])
 async def delete_token(
         response: Response,
         token_key: str = Path(

@@ -228,13 +228,19 @@ class ServiceInstanceDataResponse(ServiceInstanceData):
         ge=0
     )
 
+    namespace: str = Field(
+        ...,
+        title='namespace of this instance'
+    )
+
     @classmethod
     async def service_instance_response_from_db_model(cls, db_model):
         return cls(
             id=db_model.id,
             host=db_model.host,
             credentials=await db_model.credentials.all(),
-            port=db_model.port
+            port=db_model.port,
+            namespace=db_model.namespace
         )
 
     @classmethod

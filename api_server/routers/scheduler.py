@@ -22,7 +22,7 @@ __all__ = ('router',)
 
 @router.post(
     "/",
-    response_model=Union[CronJobResponse, Dict[str, str]]
+    response_model=Union[CronJobResponse, Dict]
 )
 async def add_job(
         response: Response,
@@ -65,7 +65,7 @@ async def add_job(
 
 @router.get(
     "/",
-    response_model=Union[List[CronJobResponse], Dict[str, str]]
+    response_model=Union[List[CronJobResponse], Dict]
 )
 async def get_jobs(
         response: Response,
@@ -85,7 +85,7 @@ async def get_jobs(
 
 @router.get(
     "/{job_id}",
-    response_model=Union[CronJobResponse, Dict[str, str]]
+    response_model=Union[CronJobResponse, Dict]
 )
 async def get_job(
         response: Response,
@@ -107,7 +107,7 @@ async def get_job(
 
 @router.patch(
     "/{job_id}",
-    response_model=Union[CronJobResponse, Dict[str, str]]
+    response_model=Union[CronJobResponse, Dict]
 )
 async def edit_job(
         response: Response,
@@ -131,7 +131,7 @@ async def edit_job(
 
 @router.delete(
     "/{job_id}",
-    response_model=Union[CronJobResponse, Dict[str, str]]
+    response_model=Union[CronJobResponse, Dict]
 )
 async def delete_job(
         response: Response,

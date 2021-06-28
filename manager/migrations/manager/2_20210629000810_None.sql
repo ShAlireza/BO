@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS "manager.serviceinstancedata" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "host" VARCHAR(256) NOT NULL,
     "port" INT NOT NULL,
+    "namespace" VARCHAR(256) NOT NULL,
     "module_id" VARCHAR(48) NOT NULL REFERENCES "manager.module" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "manager.serviceinstancecredential" (

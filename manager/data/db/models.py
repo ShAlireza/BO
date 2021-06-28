@@ -136,6 +136,10 @@ class ServiceInstanceData(Model):
         validators=[NoneNegativeValidator]
     )
 
+    namespace = fields.CharField(
+        max_length=256
+    )
+
     module = fields.ForeignKeyField(
         model_name='manager.Module',
         related_name='service_instances',

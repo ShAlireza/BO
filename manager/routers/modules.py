@@ -1,8 +1,5 @@
 from typing import Optional, List
 
-import aiohttp
-from aiohttp import ContentTypeError
-
 from internal import RabbitMQHandler
 from exceptions import InvalidCredentialNames, ServiceInstanceExists
 from config import (
@@ -25,6 +22,8 @@ from fastapi import (
     Request,
     HTTPException
 )
+
+from bo_shared.utils.namespace import handle_namespace_token
 
 from data.db import (
     Module as ModuleDB,
@@ -116,7 +115,7 @@ async def toggle_secret_key_validity(
     return secret_key
 
 
-@router.delete('secret-key/{secret_key_id}', response_model=SecretKeyResponse)
+@router.delete('/secret-key/{secret_key_id}', response_model=SecretKeyResponse)
 async def delete_secret_key(
         response: Response,
         secret_key_id: int = Path(..., title='id of secret_key', ge=0)
@@ -183,6 +182,7 @@ async def login(
             response_model=List[ServiceInstanceDataResponse])
 async def get_service_instances_data(
         response: Response,
+        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -193,7 +193,8 @@ async def get_service_instances_data(
     )
 
     service_instances = await ServiceInstanceDataDB.filter(
-        module=module
+        module=module,
+        namespace=namespace
     ).prefetch_related('credentials')
 
     responses = await ServiceInstanceDataResponse.service_instance_response_from_db_model_list(
@@ -206,6 +207,7 @@ async def get_service_instances_data(
 @router.post("/{module_name}/detail",
              response_model=ServiceInstanceDataResponse)
 async def get_service_instance_data(
+        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name'
@@ -226,7 +228,8 @@ async def get_service_instance_data(
     service_instance_data = await ServiceInstanceDataDB.get(
         module=module,
         host=host,
-        port=port
+        port=port,
+        namespace=namespace
     )
 
     await service_instance_data.fetch_related('credentials')
@@ -241,6 +244,7 @@ async def get_service_instance_data(
 @router.post("/{module_name}/exists")
 async def service_exists(
         response: Response,
+        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name'
@@ -259,7 +263,8 @@ async def service_exists(
     instance_exists = await ServiceInstanceDataDB.filter(
         module=module,
         host=host,
-        port=port
+        port=port,
+        namespace=namespace
     ).exists()
 
     print(instance_exists, module, host, port)
@@ -273,6 +278,7 @@ async def service_exists(
 @router.post("/{module_name}", response_model=ServiceInstanceDataResponse)
 async def add_service_instance_data(
         response: Response,
+        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -289,7 +295,8 @@ async def add_service_instance_data(
     exists = await ServiceInstanceDataDB.filter(
         host=service_instance.host,
         port=service_instance.port,
-        module=module
+        module=module,
+        namespace=namespace
     ).exists()
 
     if exists:
@@ -298,7 +305,8 @@ async def add_service_instance_data(
     service_instance_data = await ServiceInstanceDataDB.create(
         host=service_instance.host,
         port=service_instance.port,
-        module=module
+        module=module,
+        namespace=namespace
     )
 
     invalid_credentials = []
@@ -330,6 +338,7 @@ async def add_service_instance_data(
               response_model=ServiceInstanceDataResponse)
 async def edit_service_instance_data(
         response: Response,
+        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -349,7 +358,8 @@ async def edit_service_instance_data(
     )
 
     service_instance_data = await ServiceInstanceDataDB.get(
-        id=service_instance_id
+        id=service_instance_id,
+        namespace=namespace
     )
 
     invalid_credentials = []
@@ -401,6 +411,7 @@ async def delete_service_instance_data(
             ...,
             title='module name for adding service instance'
         ),
+        namespace: str = Depends(handle_namespace_token),
         service_instance_id: int = Path(
             ...,
             title='service instance id',
@@ -408,7 +419,8 @@ async def delete_service_instance_data(
         )
 ):
     service_instance_data = await ServiceInstanceDataDB.get(
-        id=service_instance_id
+        id=service_instance_id,
+        namespace=namespace
     )
 
     await service_instance_data.fetch_related('credentials')
@@ -418,7 +430,8 @@ async def delete_service_instance_data(
     )
 
     await ServiceInstanceDataDB.filter(
-        id=service_instance_id
+        id=service_instance_id,
+        namespace=namespace
     ).delete()
 
     return response_data

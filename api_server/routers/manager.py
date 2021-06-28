@@ -11,6 +11,7 @@ from bo_shared.models.manager import (
     ServiceInstanceData,
     ServiceInstanceDataPatch
 )
+from bo_shared.utils.namespace import namespace_token_header
 
 from internal.utils import request
 from config import API_SERVER_USER, MANAGER_HOST
@@ -22,7 +23,7 @@ __all__ = ('router',)
 
 @router.get(
     "/",
-    response_model=Union[List[ModuleResponse], Dict[str, str]]
+    response_model=Union[List[ModuleResponse], Dict]
 )
 async def get_registered(
         response: Response,
@@ -40,7 +41,7 @@ async def get_registered(
 
 @router.post(
     "/secret-key",
-    response_model=Union[SecretKeyResponse, Dict[str, str]]
+    response_model=Union[SecretKeyResponse, Dict]
 )
 async def create_secret_key(
         response: Response
@@ -57,7 +58,7 @@ async def create_secret_key(
 
 @router.get(
     "/secret-key",
-    response_model=Union[List[SecretKeyResponse], Dict[str, str]]
+    response_model=Union[List[SecretKeyResponse], Dict]
 )
 async def get_secret_keys(
         response: Response
@@ -74,7 +75,7 @@ async def get_secret_keys(
 
 @router.patch(
     "/secret-key/{secret_key_id}",
-    response_model=Union[SecretKeyResponse, Dict[str, str]]
+    response_model=Union[SecretKeyResponse, Dict]
 )
 async def toggle_secret_key_validity(
         response: Response,
@@ -92,13 +93,14 @@ async def toggle_secret_key_validity(
 
 @router.delete(
     "/secret-key/{secret_key_id}",
-    response_model=Union[SecretKeyResponse, Dict[str, str]]
+    response_model=Union[SecretKeyResponse, Dict]
 )
 async def delete_secret_key(
         response: Response,
         secret_key_id: int = Path(..., title='id of secret_key', ge=0)
 ):
     url = f'{MANAGER_HOST}/api/module/secret-key/{secret_key_id}'
+
     data, _, _, _ = await request(
         method='delete',
         url=url,
@@ -110,10 +112,11 @@ async def delete_secret_key(
 
 @router.get(
     "/{module_name}",
-    response_model=Union[List[ServiceInstanceDataResponse], Dict[str, str]]
+    response_model=Union[List[ServiceInstanceDataResponse], Dict]
 )
 async def get_service_instances_data(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -123,16 +126,20 @@ async def get_service_instances_data(
     data, _, _, _ = await request(
         method='get',
         url=url,
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
 
 
 @router.post("/{module_name}",
-             response_model=Union[ServiceInstanceDataResponse, Dict[str, str]])
+             response_model=Union[ServiceInstanceDataResponse, Dict])
 async def add_service_instance_data(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -147,7 +154,10 @@ async def add_service_instance_data(
         method='post',
         url=url,
         json=service_instance.dict(exclude_unset=True),
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
@@ -155,10 +165,11 @@ async def add_service_instance_data(
 
 @router.patch(
     "/{module_name}/{service_instance_id}",
-    response_model=Union[ServiceInstanceDataResponse, Dict[str, str]]
+    response_model=Union[ServiceInstanceDataResponse, Dict]
 )
 async def edit_service_instance_data(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         module_name: str = Path(
             ...,
             title='module name for adding service instance'
@@ -178,16 +189,20 @@ async def edit_service_instance_data(
         method='patch',
         url=url,
         json=service_instance.dict(exclude_unset=True),
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data
 
 
 @router.post("/{module_name}/detail",
-             response_model=Union[ServiceInstanceDataResponse, Dict[str, str]])
+             response_model=Union[ServiceInstanceDataResponse, Dict])
 async def get_service_instance_data(
         response: Response,
+        namespace_token: str = Depends(namespace_token_header),
         module_name: str = Path(
             ...,
             title='module name'
@@ -209,7 +224,40 @@ async def get_service_instance_data(
             'host': host,
             'port': port
         },
-        response=response
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
+    )
+
+    return data
+
+
+@router.delete(
+    "/{module_name}/{service_instance_id}",
+    response_model=Union[ServiceInstanceDataResponse, Dict]
+)
+async def edit_service_instance_data(
+        response: Response,
+        namespace_token: str = Depends(namespace_token_header),
+        module_name: str = Path(
+            ...,
+            title='module name for adding service instance'
+        ),
+        service_instance_id: int = Path(
+            ...,
+            title='service instance id',
+            ge=0
+        )
+):
+    url = f'{MANAGER_HOST}/api/module/{module_name}/{service_instance_id}'
+    data, _, _, _ = await request(
+        method='delete',
+        url=url,
+        response=response,
+        headers={
+            'namespace-token': namespace_token
+        }
     )
 
     return data

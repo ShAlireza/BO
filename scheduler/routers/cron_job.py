@@ -30,7 +30,6 @@ async def add_job(
             title='Job to be added to scheduling service'
         )
 ):
-    # namespace = 'all'  # Todo get namespace from auth
     cron_job = CronJob(**job.dict(), namespace=namespace_name)
     cron_job.generate_full_command()
 
