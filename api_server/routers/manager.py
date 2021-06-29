@@ -237,7 +237,7 @@ async def get_service_instance_data(
     "/{module_name}/{service_instance_id}",
     response_model=Union[ServiceInstanceDataResponse, Dict]
 )
-async def edit_service_instance_data(
+async def delete_service_instance_data(
         response: Response,
         namespace_token: str = Depends(namespace_token_header),
         module_name: str = Path(

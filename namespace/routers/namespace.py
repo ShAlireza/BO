@@ -169,3 +169,12 @@ async def delete_token(
     ).delete()
 
     return token
+
+
+@router.get('/token', response_model=List[TokenResponse])
+async def get_tokens(
+
+):
+    tokens = await TokenDB.all().prefetch_related('namespace')
+
+    return tokens

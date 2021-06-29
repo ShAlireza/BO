@@ -125,6 +125,11 @@ class CronJobPatch(CronJobBase):
         None,
         title='Service host'
     )
+    mode: Optional[str] = Field(
+        None,
+        title='event mode (backup, validate, restore)',
+        max_length=32
+    )
 
 
 class CronJobResponse(CronJobBase):

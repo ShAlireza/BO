@@ -85,6 +85,8 @@ async def edit_job(
 
     new_job = CronJob.instance_from_tortoise_model(cron_job)
     new_job = new_job.copy(update=update_data)
+    print(new_job.full_command, '<===================')
+    print(dir(new_job))
     new_job.generate_full_command()
 
     cron_job = await cron_job.update_from_dict(

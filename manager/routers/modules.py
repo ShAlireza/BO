@@ -207,7 +207,6 @@ async def get_service_instances_data(
 @router.post("/{module_name}/detail",
              response_model=ServiceInstanceDataResponse)
 async def get_service_instance_data(
-        namespace: str = Depends(handle_namespace_token),
         module_name: str = Path(
             ...,
             title='module name'
@@ -229,7 +228,7 @@ async def get_service_instance_data(
         module=module,
         host=host,
         port=port,
-        namespace=namespace
+        # namespace=namespace Todo should some how pass the namespace too.
     )
 
     await service_instance_data.fetch_related('credentials')
@@ -266,8 +265,6 @@ async def service_exists(
         port=port,
         namespace=namespace
     ).exists()
-
-    print(instance_exists, module, host, port)
 
     if instance_exists:
         response.status_code = status.HTTP_200_OK
@@ -330,6 +327,7 @@ async def add_service_instance_data(
 
     response_data = service_instance.dict()
     response_data['id'] = service_instance_data.id
+    response_data['namespace'] = namespace
 
     return response_data
 
@@ -393,6 +391,8 @@ async def edit_service_instance_data(
     await service_instance_data.update_from_dict(
         data=update_data
     )
+
+    await service_instance_data.save()
 
     await service_instance_data.fetch_related('credentials')
 

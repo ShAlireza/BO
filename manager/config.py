@@ -15,6 +15,14 @@ MINIO_ADDRESS = os.getenv('MINIO_ADDRESS')
 MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
 
+NAMESPACE_SERVER_HOST = os.getenv('NAMESPACE_SERVER_HOST')
+NAMESPACE_SERVER_PORT = os.getenv('NAMESPACE_SERVER_PORT')
+NAMESPACE_SERVER_URL = (
+    f'http://'
+    f'{NAMESPACE_SERVER_HOST}:'
+    f'{NAMESPACE_SERVER_PORT}'
+    f'/api/namespace/token/{{token_key}}'
+)
 
 TORTOISE_ORM = {
     "connections": {"default": DATABASE_URL},

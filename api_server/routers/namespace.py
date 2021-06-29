@@ -170,3 +170,21 @@ async def delete_token(
     )
 
     return data
+
+
+@router.get(
+    '/token',
+    response_model=Union[List[TokenResponse], Dict]
+)
+async def get_tokens(
+        response: Response,
+):
+    url = f'{NAMESPACE_HOST}/api/namespace/token'
+
+    data, _, _, _ = await request(
+        method='get',
+        url=url,
+        response=response
+    )
+
+    return data

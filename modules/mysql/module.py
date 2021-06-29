@@ -37,11 +37,18 @@ class MySqlModule(BaseModule):
             stdin=mysql.stdout,
             universal_newlines=True,
         )
-        stdout, stderr = minio.communicate()
+        minio_stdout, mysql_stderr = minio.communicate()
 
-        return_code = minio.poll()
-        if return_code != 0:
+        if mysql.poll() != 0:
+            print(f'mysql: mysql backup failed')
+            stdout = mysql.stdout
+            stderr = mysql.stderr
+            stdout = stdout.read() if stdout else ''
+            stderr = stderr.read() if stderr else ''
             print(stdout, stderr)
+        elif minio.poll() != 0:
+            print(f'minio: transfer data to minio failed')
+            print(minio_stdout, mysql_stderr)
         else:
             print(f'backup {module} successfully completed: {host}:{port}')
 
