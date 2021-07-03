@@ -11,3 +11,4 @@ aerich==0.5.3
 aiohttp==3.7.4.post0
 minio==7.0.3
 pika==1.2.0
+-e git+https://github.com/ShAlireza/BO_Shared.git#egg=bo-shared

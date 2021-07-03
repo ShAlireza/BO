@@ -1,7 +1,7 @@
 import os
 from tortoise import Tortoise
 
-AUTH_USER = os.getenv("AUTH_USER")
+NAMESPACE_USER = os.getenv("NAMESPACE_USER")
 PYTHONPATH = os.getenv("PYTHONPATH")
 DATABASE_URL = os.getenv("DATABASE_URL")
 

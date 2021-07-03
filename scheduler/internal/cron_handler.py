@@ -109,7 +109,8 @@ class CronHandler:
         if len(cron_items) > 1:
             raise MultipleJobsWithGivenId("multiple jobs found")
         elif len(cron_items) <= 0:
-            raise NoJobFoundWithGivenId("job not found")
+            # raise NoJobFoundWithGivenId("job not found")
+            return None
 
         cron_item = cron_items[0]
         cron_job = self.cron_job_from_cron_item(cron_item)
@@ -117,6 +118,23 @@ class CronHandler:
         if return_cron_item:
             return cron_job, cron_item
         return cron_job
+
+    def job_exists(
+            self,
+            job_id,
+    ) -> bool:
+
+        cron_items: List[CronItem] = list(self.cron.find_comment(
+            comment=job_id
+        ))
+
+        if len(cron_items) > 1:
+            raise MultipleJobsWithGivenId("multiple jobs found")
+        elif len(cron_items) <= 0:
+            # raise NoJobFoundWithGivenId("job not found")
+            return False
+
+        return True
 
     def get_jobs_by_command(
             self,
@@ -197,6 +215,7 @@ class CronHandler:
 
         from .event_push import parser
         command_split = re.split("\\s+", cron_item.command)
+        print(command_split)
 
         args = parser.parse_args(command_split[1:])
 
