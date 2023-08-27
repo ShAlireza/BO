@@ -12,5 +12,6 @@ tortoise-orm==0.17.4
 aerich==0.5.3
 pika==1.2.0
 asyncpg==0.23.0
--e git+https://github.com/ShAlireza/BO_Shared.git#egg=bo-shared
 aiohttp==3.7.4.post0
+requests==2.25.1
+-e git+https://github.com/ShAlireza/BO_Shared.git#egg=bo-shared

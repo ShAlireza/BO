@@ -25,7 +25,7 @@ services:
         published: 8000
         protocol: tcp    
   scheduler:
-    image: shalireza/scheduler:0.3
+    image: shalireza/scheduler:0.2
     deploy:
       replicas: 1
       update_config:
@@ -37,7 +37,7 @@ services:
     environment:
       PYTHONPATH: "/app"
       SCHEDULER_USER: "root"
-      RABBITMQ_HOST: "172.16.30.30"
+      RABBITMQ_HOST: "172.16.10.191"
       RABBITMQ_PORT: "5672"
       DATABASE_URL: "postgres://postgres:ddlHJkUCXkjDI5YFCB4l@172.16.10.231:5432/bo"
       NAMESPACE_SERVER_HOST: "namespace"
@@ -55,14 +55,14 @@ services:
     environment:
       PYTHONPATH: "/app"
       MANAGER_USER: "root"
-      RABBITMQ_HOST: "172.16.30.30"
+      RABBITMQ_HOST: "172.16.10.191"
       RABBITMQ_PORT: "5672"
       DATABASE_URL: "postgres://postgres:ddlHJkUCXkjDI5YFCB4l@172.16.10.231:5432/bo"
       NAMESPACE_SERVER_HOST: "namespace"
       NAMESPACE_SERVER_PORT: "8000"
-      MINIO_ADDRESS: "172.16.18.242:9000"
-      MINIO_ACCESS_KEY: "minio"
-      MINIO_SECRET_KEY: "minio123"
+      MINIO_ADDRESS: "minio.pegah.tech"
+      MINIO_ACCESS_KEY: "LPnjSd2gpDqyjWMNrH9SjPzVYpjExHd6"
+      MINIO_SECRET_KEY: "Gh3369BcZfqYDJBDWtcCVryBtaF4hwRsRfe6NbJq6Z8UGdNH"
   namespace:
     image: shalireza/namespace:0.1 
     deploy:
@@ -78,3 +78,20 @@ services:
       NAMESPACE_USER: "root"
       DATABASE_URL: "postgres://postgres:ddlHJkUCXkjDI5YFCB4l@172.16.10.231:5432/bo"
  
+  mysql_module:
+    image: shalireza/mysql_module:0.4
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+    environment:
+      PYTHONPATH: "/app"
+      MODULE_USER: "root"
+      HOST: "localhost"
+      PORT: "8000"
+      MANAGER_HOST: "manager"
+      MANAGER_PORT: 8000
+      SECRET_KEY: "7_tAAa_zRV2Z4#8FxpM1kYgX<QdhHWocWYs!FyAxO1sT5h6IDutrKJbFHuxJ=hhk" 

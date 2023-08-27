@@ -8,7 +8,7 @@ LOGIN_PATH = '/api/module/login'
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
 NAME = 'mysql'
-MINIO_CLIENT = '../mc'
+MINIO_CLIENT = './mc'
 
 # Comma separated list of valid credential names for this module services
 VALID_CREDENTIAL_NAMES = 'username,password'
